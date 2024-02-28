@@ -1,7 +1,6 @@
 package org.amalgama.network;
 
 import org.amalgama.network.packets.Packet;
-import org.amalgama.network.packets.PacketKick;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
