@@ -8,14 +8,6 @@ import java.io.IOException;
 public abstract class Packet {
     protected int id;
 
-    public int getId() {
-        return id;
-    }
-
-    public Packet(int id) {
-        this.id = id;
-    }
-
     public static Packet read(ChannelBuffer buffer) throws IOException {
         int id = buffer.readUnsignedShort();
         Packet packet = PacketFactory.makePacket(id);
@@ -26,10 +18,13 @@ public abstract class Packet {
     }
 
     public static void write(Packet packet, ChannelBuffer buffer) {
-        buffer.writeChar(packet.getId());
+        //6 = sizeof id (unsigned short) + sizeof size
+        buffer.writeInt(6 + packet.size());
+        buffer.writeChar(packet.id);
         packet.send(buffer);
     }
 
     public abstract void receive(ChannelBuffer buffer);
     public abstract void send(ChannelBuffer buffer);
+    public abstract int size();
 }

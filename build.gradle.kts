@@ -22,6 +22,7 @@ dependencies {
     implementation("org.hibernate:hibernate-core:6.2.7.Final")
     implementation("org.postgresql:postgresql:42.6.1")
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
+    compileOnly("org.projectlombok:lombok:1.18.24")
     runtimeOnly("org.apache.logging.log4j:log4j-core")
 }
 

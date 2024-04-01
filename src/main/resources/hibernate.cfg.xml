@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/postgres</property>
+        <property name="hibernate.default_schema">achat</property>
+        <property name="hibernate.current_session_context_class">thread</property>
+        <property name="hibernate.enable_lazy_load_no_trans">true</property>
+        <property name="hibernate.connection.username">postgres</property>
+        <property name="hibernate.connection.password"></property>
+        <property name="hibernate.connection.pool_size">3</property>
+        <property name="hibernate.connection.autocommit">true</property>
+        <property name="hibernate.show_sql">false</property>
+        <property name="hibernate.format_sql">true</property>
+        <mapping class="org.amalgama.database.entities.Permission"/>
+        <mapping class="org.amalgama.database.entities.User"/>
+        <mapping class="org.amalgama.database.entities.Ban"/>
+        <mapping class="org.amalgama.database.entities.ProfileComment"/>
+        <mapping class="org.amalgama.database.entities.Group"/>
+        <mapping class="org.amalgama.database.entities.Chat"/>
+        <mapping class="org.amalgama.database.entities.Message"/>
+        <mapping class="org.amalgama.database.entities.Attachment"/>
+    </session-factory>
+</hibernate-configuration>

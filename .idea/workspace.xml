@@ -4,9 +4,41 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="Start commit">
-      <change afterPath="$PROJECT_DIR$/LICENSE" afterDir="false" />
+    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="Add - license">
+      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/ConnectionChecker.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/DBService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/HibernateUtil.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/AttachmentDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/BanDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/ChatDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/GroupDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/MessageDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/PermissionDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/ProfileCommentDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/UserDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/entities/Attachment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/entities/Ban.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/entities/Chat.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/entities/Group.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/entities/Message.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/entities/Permission.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/entities/ProfileComment.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/entities/User.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketAuthAccept.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketAuthReject.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/utils/Checker.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/utils/ServerLogger.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/hibernate.cfg.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/Packet.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/Packet.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketKick.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketKick.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketLogin.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketLogin.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,6 +49,21 @@
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
     </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand />
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -35,9 +82,9 @@
   <component name="OptimizeOnSaveOptions">
     <option name="myRunOnSave" value="true" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 3
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="2czxil3gsSY7MxlPAD0zRvRBBbi" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -49,12 +96,56 @@
   "keyToString": {
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable"
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.48863637",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors"
   }
 }]]></component>
+  <component name="RunManager" selected="Application.Main">
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.amalgama.Main" />
+      <module name="AdvancedChatServer.main" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="org.amalgama.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AdvancedChatServer [compileJava]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="compileJava" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.AdvancedChatServer [compileJava]" />
+        <item itemvalue="Application.Main" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -80,7 +171,15 @@
       <option name="project" value="LOCAL" />
       <updated>1709140142677</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Add - license">
+      <option name="closed" value="true" />
+      <created>1709140565935</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1709140565935</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -96,7 +195,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Start commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Start commit" />
+    <MESSAGE value="Add - license" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add - license" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

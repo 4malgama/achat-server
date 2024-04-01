@@ -4,21 +4,33 @@ import org.jboss.netty.buffer.ChannelBuffer;
 
 public class PacketLogin extends Packet{
     public String login;
+    public String password;
 
-    public PacketLogin(int id) {
-        super(id);
+    public PacketLogin() {
+        this.id = 100;
     }
 
     @Override
     public void receive(ChannelBuffer buffer) {
-        int length = buffer.readShort();
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < length; i++)
-            builder.append(buffer.readChar());
-        login = builder.toString();
+        int loginLength = buffer.readShort();
+        int passwordLength = buffer.readShort();
+        StringBuilder loginBuilder = new StringBuilder();
+        for (int i = 0; i < loginLength; i++)
+            loginBuilder.append(buffer.readChar());
+        login = loginBuilder.toString();
+        StringBuilder passwordBuilder = new StringBuilder();
+        for (int i = 0; i < passwordLength; i++)
+            passwordBuilder.append(buffer.readChar());
+        password = passwordBuilder.toString();
     }
 
     @Override
     public void send(ChannelBuffer buffer) {
         //server don't send this packet
-    }}
+    }
+
+    @Override
+    public int size() {
+        return 0;
+    }
+}

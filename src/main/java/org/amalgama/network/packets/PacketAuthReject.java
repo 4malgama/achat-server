@@ -2,25 +2,21 @@ package org.amalgama.network.packets;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 
-public class PacketKick extends Packet {
+public class PacketAuthReject extends Packet {
     public String reason;
 
-    public PacketKick() {
-        this.id = 200;
+    public PacketAuthReject() {
+        this.id = 101;
     }
 
-    public PacketKick(String reason) {
-        this.id = 200;
+    public PacketAuthReject(String reason) {
+        this.id = 101;
         this.reason = reason;
     }
 
     @Override
     public void receive(ChannelBuffer buffer) {
-        int length = buffer.readShort();
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < length; i++)
-            builder.append(buffer.readChar());
-        reason = builder.toString();
+        //server don't receive this packet
     }
 
     @Override
@@ -29,11 +25,11 @@ public class PacketKick extends Packet {
         buffer.writeShort(length);
         for (int i = 0; i < length; i++)
             buffer.writeChar(reason.charAt(i));
-        System.out.println("size: " + buffer.writerIndex());
     }
 
     @Override
     public int size() {
+        //string, length
         return (reason.length() * 2 + 2);
     }
 }
