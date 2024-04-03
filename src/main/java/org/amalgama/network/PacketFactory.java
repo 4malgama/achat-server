@@ -10,6 +10,10 @@ public class PacketFactory {
             case 200 -> packet = new PacketKick();
             case 101 -> packet = new PacketAuthReject();
             case 102 -> packet = new PacketAuthAccept();
+            case 103 -> packet = new PacketRegister();
+            case 301 -> packet = new PacketInitLocation();
+            case 1000 -> packet = new PacketCheckAvatarHash();
+            case 1001 -> packet = new PacketUpdateAvatar();
             default -> packet = null;
         }
         return packet;

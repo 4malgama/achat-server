@@ -3,7 +3,6 @@ package org.amalgama.database.dao;
 import jakarta.persistence.NoResultException;
 import org.amalgama.database.HibernateUtil;
 import org.amalgama.database.entities.User;
-import org.hibernate.NonUniqueResultException;
 import org.hibernate.Session;
 
 public class UserDAO {
@@ -21,7 +20,10 @@ public class UserDAO {
             return session.createQuery("from User where Login = ?1", User.class)
                     .setParameter(1, login)
                     .getSingleResult();
-        } catch (Exception e) {
+        } catch (NoResultException e) {
+            return null;
+        }
+        catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -33,10 +35,7 @@ public class UserDAO {
                     .setParameter(1, login)
                     .setParameter(2, password)
                     .getSingleResult();
-        } catch (NoResultException | NonUniqueResultException e) {
-            return null;
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         }
     }

@@ -52,7 +52,7 @@ public class User {
     @JoinColumn(name = "permission_id")
     private Permission Permission;
 
-    @Column(name = "settings_data")
+    @Column(name = "settings")
     private String SettingsData;
 
     @Column(name = "register_timestamp")

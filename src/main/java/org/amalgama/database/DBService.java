@@ -5,6 +5,9 @@ import org.amalgama.database.dao.UserDAO;
 import org.amalgama.database.entities.User;
 import org.json.simple.JSONObject;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 public class DBService {
     private static DBService instance;
 
@@ -36,7 +39,7 @@ public class DBService {
 
         User user = new User();
         user.setLogin(login);
-        user.setPassword(password);
+        user.setPassword(hashPassword(password));
         user.setScore(0L);
         user.setBalance(0L);
         user.setCash(0L);
@@ -46,6 +49,24 @@ public class DBService {
         user.setLastLoginTimestamp(System.currentTimeMillis());
 
         UserDAO.addUser(user);
+    }
+
+    private String hashPassword(String password) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] hash = digest.digest(password.getBytes());
+            StringBuilder hexString = new StringBuilder(2 * hash.length);
+
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if(hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+
+            return hexString.toString();
+        } catch(NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean isRegistered(String login) {
