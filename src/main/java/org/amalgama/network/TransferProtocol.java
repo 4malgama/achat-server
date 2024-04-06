@@ -2,12 +2,14 @@ package org.amalgama.network;
 
 import org.amalgama.database.DBService;
 import org.amalgama.database.dao.UserDAO;
-import org.amalgama.database.entities.User;
 import org.amalgama.network.packets.*;
 import org.amalgama.servecies.CacheService;
 import org.amalgama.utils.CryptoUtils;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 public class TransferProtocol {
     private ChannelHandlerContext context;
@@ -25,24 +27,104 @@ public class TransferProtocol {
     }
 
     public void acceptPacket(Packet packet) {
-        if (packet instanceof PacketLogin packetLogin) {
-            onLogin(packetLogin.login, packetLogin.password);
-        }
-        else if (packet instanceof PacketRegister packetRegister) {
-            onRegister(packetRegister.login, packetRegister.password);
-        }
-        else if (packet instanceof PacketInitLocation packetInitLocation) {
-            onInitLocation(packetInitLocation.location);
-        }
-        else if (packet instanceof PacketCheckAvatarHash packetCheckAvatarHash) {
-            onCheckAvatarHash(packetCheckAvatarHash.avatarHash);
+        try {
+            if (packet instanceof PacketLogin packetLogin) {
+                onLogin(packetLogin.login, packetLogin.password);
+            } else if (packet instanceof PacketRegister packetRegister) {
+                onRegister(packetRegister.login, packetRegister.password);
+            } else if (packet instanceof PacketInitLocation packetInitLocation) {
+                onInitLocation(packetInitLocation.location);
+            } else if (packet instanceof PacketCheckAvatarHash packetCheckAvatarHash) {
+                onCheckAvatarHash(packetCheckAvatarHash.avatarHash);
+            } else if (packet instanceof PacketUpdateProfile packetUpdateProfile) {
+                onUpdateProfile(packetUpdateProfile.changes);
+            }
+        } catch (Exception e) {
+            System.out.println("[EXCEPTION]: " + e.getMessage());
         }
     }
 
+    private void onUpdateProfile(String changes) throws ParseException {
+        JSONParser parser = new JSONParser();
+        JSONObject json = (JSONObject) parser.parse(changes);
+
+        if (json.containsKey("email")) {
+            clientData.user.setEmail((String) json.get("email"));
+        }
+        if (json.containsKey("first_name")) {
+            clientData.user.setFName((String) json.get("first_name"));
+        }
+        if (json.containsKey("sur_name")) {
+            clientData.user.setSName((String) json.get("sur_name"));
+        }
+        if (json.containsKey("patronymic")) {
+            clientData.user.setMName((String) json.get("patronymic"));
+        }
+        if (json.containsKey("post")) {
+            clientData.user.setPost((String) json.get("post"));
+        }
+        if (json.containsKey("description")) {
+            clientData.user.setDescription((String) json.get("description"));
+        }
+
+        //TODO private settings
+
+        UserDAO.updateUser(clientData.user);
+        initProfile();
+    }
+
+    private void initProfile() {
+        try {
+            JSONParser parser = new JSONParser();
+            JSONObject json = (JSONObject) parser.parse(clientData.user.getSettingsData());
+            JSONObject privateSettings = (JSONObject) json.get("private_settings");
+
+            JSONObject profile_info = new JSONObject();
+            profile_info.put("login", clientData.user.getLogin());
+            profile_info.put("email", clientData.user.getEmail());
+            profile_info.put("first_name", clientData.user.getFName());
+            profile_info.put("sur_name", clientData.user.getSName());
+            profile_info.put("patronymic", clientData.user.getMName());
+            profile_info.put("post", clientData.user.getPost());
+            profile_info.put("description", clientData.user.getDescription());
+            profile_info.put("score", clientData.user.getScore());
+            profile_info.put("balance", clientData.user.getBalance());
+            profile_info.put("cash", clientData.user.getCash());
+            profile_info.put("registration_date", clientData.user.getRegisterTimestamp());
+
+            JSONObject private_settings = new JSONObject();
+            private_settings.put("see_avatar", privateSettings.get("see_avatar"));
+            private_settings.put("see_description", privateSettings.get("see_description"));
+            private_settings.put("see_post", privateSettings.get("see_post"));
+            private_settings.put("send_friend_request", privateSettings.get("send_friend_request"));
+            private_settings.put("see_online_status", privateSettings.get("see_online_status"));
+            private_settings.put("send_messages", privateSettings.get("send_messages"));
+            private_settings.put("can_invite_groups", privateSettings.get("can_invite_groups"));
+            private_settings.put("hide_forwards", privateSettings.get("hide_forwards"));
+
+            JSONObject permissions = new JSONObject();
+            permissions.put("ban", false);
+            permissions.put("ban_ip", false);
+            permissions.put("ban_max_time", 0);
+            permissions.put("see_ip", false);
+            permissions.put("mute", false);
+
+            JSONObject init_profile = new JSONObject();
+            init_profile.put("profile_info", profile_info);
+            init_profile.put("private_settings", private_settings);
+            init_profile.put("permissions", permissions);
+
+            PacketInitProfile packetInitProfile = new PacketInitProfile();
+            packetInitProfile.jsonData = init_profile.toJSONString();
+            channel.write(packetInitProfile);
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+
     private void onCheckAvatarHash(String avatarHash) {
-        User user = UserDAO.getUser(clientData.login);
-        assert user != null;
-        byte[] avatarData = CacheService.getInstance().getUserAvatar(user.getId());
+        byte[] avatarData = CacheService.getInstance().getUserAvatar(clientData.user.getId());
+        if (avatarData == null)
+            return;
+
         if (!avatarHash.equals(CryptoUtils.getHash(avatarData, "MD5"))) {
             PacketUpdateAvatar packet = new PacketUpdateAvatar();
             packet.avatarData = avatarData;
@@ -71,11 +153,12 @@ public class TransferProtocol {
             channel.write(packetRegister);
         }
         else {
-            dbService.registerUser(login, password);
+            clientData.user = dbService.registerUser(login, password);
             PacketRegister packetRegister = new PacketRegister();
             packetRegister.errorCode = 0;
-            clientData.login = login;
+            packetRegister.uid = clientData.user.getId();
             channel.write(packetRegister);
+            initProfile();
         }
     }
 
@@ -89,8 +172,11 @@ public class TransferProtocol {
 
     private void onLogin(String login, String password) {
         if (dbService.validateCredentials(login, password)) {
-            clientData.login = login;
-            channel.write(new PacketAuthAccept());
+            clientData.user = UserDAO.getUser(login);
+            PacketAuthAccept packet = new PacketAuthAccept();
+            packet.uid = clientData.user.getId();
+            channel.write(packet);
+            initProfile();
         }
         else {
             channel.write(new PacketAuthReject(clientData.locale.equalsIgnoreCase("RU") ? "Неверный логин или пароль" : "Invalid credentials"));

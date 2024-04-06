@@ -21,7 +21,7 @@ public class DBService {
         return instance;
     }
 
-    public void registerUser(String login, String password) {
+    public User registerUser(String login, String password) {
         JSONObject jsonPrivateSettings = new JSONObject();
         jsonPrivateSettings.put("see_avatar", "all");
         jsonPrivateSettings.put("see_description", "all");
@@ -49,6 +49,7 @@ public class DBService {
         user.setLastLoginTimestamp(System.currentTimeMillis());
 
         UserDAO.addUser(user);
+        return user;
     }
 
     private String hashPassword(String password) {

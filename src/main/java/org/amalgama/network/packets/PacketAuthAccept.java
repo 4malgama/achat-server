@@ -3,6 +3,8 @@ package org.amalgama.network.packets;
 import org.jboss.netty.buffer.ChannelBuffer;
 
 public class PacketAuthAccept extends Packet {
+    public long uid;
+
     public PacketAuthAccept() {
         this.id = 102;
     }
@@ -14,12 +16,12 @@ public class PacketAuthAccept extends Packet {
 
     @Override
     public void send(ChannelBuffer buffer) {
-        //nothing
+        buffer.writeLong(uid);
     }
 
     @Override
     public int size() {
         //empty packet
-        return 0;
+        return 8;
     }
 }

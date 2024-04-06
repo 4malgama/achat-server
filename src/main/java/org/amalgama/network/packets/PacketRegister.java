@@ -6,6 +6,7 @@ public class PacketRegister extends Packet {
     public int errorCode;
     public String login;
     public String password;
+    public long uid;
 
     public PacketRegister() {
         this.id = 103;
@@ -27,10 +28,11 @@ public class PacketRegister extends Packet {
     @Override
     public void send(ChannelBuffer buffer) {
         buffer.writeShort(errorCode);
+        buffer.writeLong(uid);
     }
 
     @Override
     public int size() {
-        return 2;
+        return 10;
     }
 }
