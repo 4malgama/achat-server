@@ -13,7 +13,7 @@ public class Chat {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User User;
+    private User User;              //receiver
 
     @ManyToOne
     @JoinColumn(name = "group_id")
@@ -21,6 +21,12 @@ public class Chat {
 
     @Column(name = "is_group")
     private boolean IsGroup;
+
+    @ManyToOne
+    @JoinColumn(name = "second_id")
+    private User Second;            //sender
+
+    public Chat() {}
 
     public Chat(Group Group) {
         this.User = null;
@@ -46,6 +52,10 @@ public class Chat {
         return Group;
     }
 
+    public User getSecond() {
+        return Second;
+    }
+
     public boolean isGroup() {
         return IsGroup;
     }
@@ -64,5 +74,9 @@ public class Chat {
 
     public void setGroup(boolean IsGroup) {
         this.IsGroup = IsGroup;
+    }
+
+    public void setSecond(User Second) {
+        this.Second = Second;
     }
 }

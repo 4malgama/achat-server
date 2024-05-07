@@ -2,14 +2,20 @@ package org.amalgama.network;
 
 import org.amalgama.database.DBService;
 import org.amalgama.database.dao.UserDAO;
+import org.amalgama.database.entities.Chat;
+import org.amalgama.database.entities.User;
 import org.amalgama.network.packets.*;
 import org.amalgama.servecies.CacheService;
 import org.amalgama.utils.CryptoUtils;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
+import java.util.List;
+import java.util.Objects;
 
 public class TransferProtocol {
     private ChannelHandlerContext context;
@@ -159,6 +165,7 @@ public class TransferProtocol {
             packetRegister.uid = clientData.user.getId();
             channel.write(packetRegister);
             initProfile();
+            initChats();
         }
     }
 
@@ -177,10 +184,46 @@ public class TransferProtocol {
             packet.uid = clientData.user.getId();
             channel.write(packet);
             initProfile();
+            initChats();
         }
         else {
             channel.write(new PacketAuthReject(clientData.locale.equalsIgnoreCase("RU") ? "Неверный логин или пароль" : "Invalid credentials"));
         }
+    }
+
+    private void initChats() {
+        DBService db = DBService.getInstance();
+        CacheService cs = CacheService.getInstance();
+        List<Chat> chats = db.getChats(clientData.user);
+
+        JSONArray jsonChats = new JSONArray();
+
+        for (Chat chat : chats) {
+            JSONObject jsonChat = new JSONObject();
+            jsonChat.put("id", chat.getId());
+            jsonChat.put("is_group", chat.isGroup());
+            if (!chat.isGroup()) {
+                JSONObject jsonUser = new JSONObject();
+                User user = chat.getUser();
+                if (Objects.equals(user.getId(), clientData.user.getId()))
+                    user = chat.getSecond();
+                jsonUser.put("id", user.getId());
+                jsonUser.put("surname", user.getSName());
+                jsonUser.put("name", user.getFName());
+                jsonUser.put("patronymic", user.getMName());
+                jsonUser.put("post", user.getPost());
+                jsonUser.put("avatar_data", CryptoUtils.getBase64(cs.getUserAvatar(user.getId())));
+                jsonChat.put("user", jsonUser);
+            }
+            jsonChats.add(jsonChat);
+        }
+
+        JSONObject json = new JSONObject();
+        json.put("chats", jsonChats);
+
+        PacketInitChats packetInitChats = new PacketInitChats();
+        packetInitChats.jsonData = json.toJSONString();
+        channel.write(packetInitChats);
     }
 
     public void close() {

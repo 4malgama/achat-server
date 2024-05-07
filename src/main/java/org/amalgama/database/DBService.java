@@ -1,12 +1,15 @@
 package org.amalgama.database;
 
+import org.amalgama.database.dao.ChatDAO;
 import org.amalgama.database.dao.PermissionDAO;
 import org.amalgama.database.dao.UserDAO;
+import org.amalgama.database.entities.Chat;
 import org.amalgama.database.entities.User;
 import org.json.simple.JSONObject;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 public class DBService {
     private static DBService instance;
@@ -81,5 +84,9 @@ public class DBService {
     public void updateEmail(User user, String email) {
         user.setEmail(email);
         UserDAO.updateUser(user);
+    }
+
+    public List<Chat> getChats(User user) {
+        return ChatDAO.getChats(user);
     }
 }

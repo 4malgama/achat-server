@@ -6,6 +6,8 @@ import org.amalgama.database.entities.Group;
 import org.amalgama.database.entities.User;
 import org.hibernate.Session;
 
+import java.util.List;
+
 public class ChatDAO {
     public static Chat getChat(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -65,6 +67,18 @@ public class ChatDAO {
             session.getTransaction().commit();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static List<Chat> getChats(User user) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("FROM Chat WHERE User = ?1 OR Second = ?1", Chat.class)
+                    .setParameter(1, user)
+                    .list();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

@@ -16,6 +16,7 @@ public class PacketFactory {
             case 501 -> packet = new PacketUpdateProfile();
             case 1000 -> packet = new PacketCheckAvatarHash();
             case 1001 -> packet = new PacketUpdateAvatar();
+            case 1002 -> packet = new PacketInitChats();
             default -> packet = null;
         }
         return packet;

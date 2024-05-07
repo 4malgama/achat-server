@@ -2,6 +2,7 @@ package org.amalgama.utils;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
 
 public class CryptoUtils {
     public static String getHash(String data, String algorithm) {
@@ -27,5 +28,15 @@ public class CryptoUtils {
         } catch (NoSuchAlgorithmException e) {
             return null;
         }
+    }
+
+    /**
+     * Generates a Base64 encoded string from the given byte array data.
+     *
+     * @param  data  the byte array to be encoded
+     * @return       the Base64 encoded string representation of the input data
+     */
+    public static String getBase64(byte[] data) {
+        return Base64.getEncoder().encodeToString(data);
     }
 }
