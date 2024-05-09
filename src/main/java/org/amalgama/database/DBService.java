@@ -1,9 +1,11 @@
 package org.amalgama.database;
 
 import org.amalgama.database.dao.ChatDAO;
+import org.amalgama.database.dao.MessageDAO;
 import org.amalgama.database.dao.PermissionDAO;
 import org.amalgama.database.dao.UserDAO;
 import org.amalgama.database.entities.Chat;
+import org.amalgama.database.entities.Message;
 import org.amalgama.database.entities.User;
 import org.json.simple.JSONObject;
 
@@ -88,5 +90,21 @@ public class DBService {
 
     public List<Chat> getChats(User user) {
         return ChatDAO.getChats(user);
+    }
+
+    public boolean existsChat(User user, long chatId) {
+        return ChatDAO.existsChat(user, chatId);
+    }
+
+    public Chat getChat(User user, long chatId) {
+        return ChatDAO.getChatFromUser(user, chatId);
+    }
+
+    public List<Message> getMessages(Chat chat) {
+        return MessageDAO.getMessages(chat);
+    }
+
+    public void addMessage(Message message) {
+        MessageDAO.addMessage(message);
     }
 }

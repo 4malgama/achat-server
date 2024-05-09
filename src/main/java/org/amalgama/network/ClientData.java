@@ -4,5 +4,5 @@ import org.amalgama.database.entities.User;
 
 public class ClientData {
     public String locale;
-    User user;
+    public User user;
 }

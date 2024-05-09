@@ -9,7 +9,7 @@ import org.hibernate.Session;
 import java.util.List;
 
 public class ChatDAO {
-    public static Chat getChat(Long id) {
+    public static Chat getChatFromUser(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.get(Chat.class, id);
         } catch (Exception e) {
@@ -18,18 +18,7 @@ public class ChatDAO {
         }
     }
 
-    public static Chat getChat(User user) {
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery("FROM Chat WHERE User = ?1", Chat.class)
-                    .setParameter(1, user)
-                    .getSingleResult();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    public static Chat getChat(Group group) {
+    public static Chat getChatFromUser(Group group) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery("FROM Chat WHERE Group = ?1", Chat.class)
                     .setParameter(1, group)
@@ -78,6 +67,31 @@ public class ChatDAO {
         }
         catch (Exception e) {
             e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static boolean existsChat(User user, long chatId) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return !session.createQuery("FROM Chat WHERE (User = ?1 OR Second = ?1) AND Id = ?2", Chat.class)
+                    .setParameter(1, user)
+                    .setParameter(2, chatId)
+                    .list().isEmpty();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static Chat getChatFromUser(User user, long chatId) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("FROM Chat WHERE (User = ?1 OR Second = ?1) AND Id = ?2", Chat.class)
+                    .setParameter(1, user)
+                    .setParameter(2, chatId)
+                    .getSingleResult();
+        }
+        catch (Exception e) {
             return null;
         }
     }

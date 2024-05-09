@@ -3,8 +3,10 @@ package org.amalgama.network;
 import org.amalgama.database.DBService;
 import org.amalgama.database.dao.UserDAO;
 import org.amalgama.database.entities.Chat;
+import org.amalgama.database.entities.Message;
 import org.amalgama.database.entities.User;
 import org.amalgama.network.packets.*;
+import org.amalgama.network.services.ChatService;
 import org.amalgama.servecies.CacheService;
 import org.amalgama.utils.CryptoUtils;
 import org.jboss.netty.channel.Channel;
@@ -32,6 +34,10 @@ public class TransferProtocol {
 
     }
 
+    public void send(Packet packet) {
+        channel.write(packet);
+    }
+
     public void acceptPacket(Packet packet) {
         try {
             if (packet instanceof PacketLogin packetLogin) {
@@ -44,9 +50,91 @@ public class TransferProtocol {
                 onCheckAvatarHash(packetCheckAvatarHash.avatarHash);
             } else if (packet instanceof PacketUpdateProfile packetUpdateProfile) {
                 onUpdateProfile(packetUpdateProfile.changes);
+            } else if (packet instanceof PacketGetInitMessages packetGetInitMessages) {
+                onGetInitMessages(packetGetInitMessages.chatId);
+            } else if (packet instanceof PacketSendMessage packetSendMessage) {
+                onSendMessage(packetSendMessage.chatId, packetSendMessage.jsonData);
             }
         } catch (Exception e) {
             System.out.println("[EXCEPTION]: " + e.getMessage());
+        }
+    }
+
+    private void onSendMessage(long chatId, String jsonData) throws ParseException {
+        DBService db = DBService.getInstance();
+        Chat chat = db.getChat(clientData.user, chatId);
+        if (chat != null) {
+            Message message = new Message();
+            message.setChat(chat);
+            message.setTimestamp(System.currentTimeMillis() / 1000L);
+            message.setUser(clientData.user);
+
+            JSONParser parser = new JSONParser();
+            JSONObject json = (JSONObject) parser.parse(jsonData);
+            message.setContent((String) json.get("content"));
+            db.addMessage(message);
+            newMessage(message);
+        }
+    }
+
+    private void newMessage(Message message) {
+        JSONObject json = new JSONObject();
+        json.put("chat_id", message.getChat().getId());
+        json.put("id", message.getId());
+        json.put("time", message.getTimestamp());
+        json.put("content", message.getContent());
+        json.put("reply_id", message.getReplyId());
+        json.put("forward_id", message.getForwardId());
+
+        JSONObject sender = new JSONObject();
+        sender.put("id", message.getUser().getId());
+        sender.put("name", message.getUser().getFName());
+        sender.put("surname", message.getUser().getSName());
+        sender.put("patronymic", message.getUser().getMName());
+        json.put("sender", sender);
+
+        PacketNewMessage packet = new PacketNewMessage();
+        packet.jsonData = json.toJSONString();
+        ChatService.broadcastChat(message.getChat(), packet);
+    }
+
+    private void onGetInitMessages(long chatId) {
+        DBService db = DBService.getInstance();
+        Chat chat = db.getChat(clientData.user, chatId);
+        if (chat != null) {
+            List<Message> messages = db.getMessages(chat);
+
+            JSONObject json = new JSONObject();
+            JSONArray jsonMessages = new JSONArray();
+            for (Message message : messages) {
+                User sender = message.getUser();
+
+                JSONArray attachments = new JSONArray();
+
+                JSONObject jsonMessage = new JSONObject();
+                jsonMessage.put("id", message.getId());
+                jsonMessage.put("content", message.getContent());
+                jsonMessage.put("time", message.getTimestamp());
+
+                JSONObject jsonSender = new JSONObject();
+                jsonSender.put("id", sender.getId());
+                jsonSender.put("name", sender.getFName());
+                jsonSender.put("surname", sender.getSName());
+                jsonSender.put("patronymic", sender.getMName());
+
+                jsonMessage.put("sender", jsonSender);
+                jsonMessage.put("reply_id", message.getReplyId());
+                jsonMessage.put("forward_id", message.getForwardId());
+                jsonMessage.put("attachments", attachments);
+
+                jsonMessages.add(jsonMessage);
+            }
+
+            json.put("messages", jsonMessages);
+            json.put("chat_id", chat.getId());
+            PacketInitMessages packet = new PacketInitMessages();
+            packet.jsonData = json.toJSONString();
+            channel.write(packet);
         }
     }
 
