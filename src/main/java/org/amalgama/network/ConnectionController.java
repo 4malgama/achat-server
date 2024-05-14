@@ -39,4 +39,8 @@ public class ConnectionController implements Runnable {
 
     @Override
     public void run() { }
+
+    public TransferProtocol getConnection(ChannelHandlerContext ctx) {
+        return connections.get(ctx);
+    }
 }

@@ -7,6 +7,9 @@ import org.amalgama.database.entities.Message;
 import org.amalgama.database.entities.User;
 import org.amalgama.network.packets.*;
 import org.amalgama.network.services.ChatService;
+import org.amalgama.security.certification.CertificationManager;
+import org.amalgama.security.encryption.AES;
+import org.amalgama.security.encryption.AESMode;
 import org.amalgama.servecies.CacheService;
 import org.amalgama.utils.CryptoUtils;
 import org.jboss.netty.channel.Channel;
@@ -22,12 +25,16 @@ import java.util.Objects;
 public class TransferProtocol {
     private ChannelHandlerContext context;
     private Channel channel;
+    public boolean encryptionSent = false;
+    public boolean encryptionEnabled = false;
     public ClientData clientData = new ClientData();
+    public AES aes;
     private DBService dbService = DBService.getInstance();
 
     public TransferProtocol(ChannelHandlerContext ctx) {
         this.context = ctx;
         this.channel = ctx.getChannel();
+        this.aes = null;
     }
 
     public void onDisconnect() {
@@ -40,7 +47,15 @@ public class TransferProtocol {
 
     public void acceptPacket(Packet packet) {
         try {
-            if (packet instanceof PacketLogin packetLogin) {
+            if (packet instanceof PacketClientHello) {
+                onClientHello();
+            } else if (packet instanceof PacketClientReady) {
+                if (encryptionSent) {
+                    encryptionEnabled = true;
+                    PacketServerReady p = new PacketServerReady();
+                    channel.write(p);
+                }
+            } else if (packet instanceof PacketLogin packetLogin) {
                 onLogin(packetLogin.login, packetLogin.password);
             } else if (packet instanceof PacketRegister packetRegister) {
                 onRegister(packetRegister.login, packetRegister.password);
@@ -58,6 +73,22 @@ public class TransferProtocol {
         } catch (Exception e) {
             System.out.println("[EXCEPTION]: " + e.getMessage());
         }
+    }
+
+    private void onClientHello() throws Exception {
+        if (encryptionEnabled || encryptionSent)
+            return;
+        String certificate = CertificationManager.getCertificate();
+        aes = new AES(AESMode.CBC);
+        aes.setKey(AES.generateKey(256));
+        aes.iv = AES.generateIV();
+        PacketServerHello packet = new PacketServerHello();
+        packet.protocolVersion = "1.0";
+        packet.Certificate = certificate;
+        packet.clientKey = CryptoUtils.getBase64(aes.getKey());
+        packet.IV = CryptoUtils.getBase64(aes.iv);
+        encryptionSent = true;
+        channel.write(packet);
     }
 
     private void onSendMessage(long chatId, String jsonData) throws ParseException {

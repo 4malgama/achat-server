@@ -1,5 +1,6 @@
 package org.amalgama.utils;
 
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -30,6 +31,18 @@ public class CryptoUtils {
         }
     }
 
+    public static byte[] MD5(byte[] data) {
+        if (data == null)
+            return null;
+
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            return md.digest(data);
+        } catch (NoSuchAlgorithmException e) {
+            return null;
+        }
+    }
+
     /**
      * Generates a Base64 encoded string from the given byte array data.
      *
@@ -38,5 +51,21 @@ public class CryptoUtils {
      */
     public static String getBase64(byte[] data) {
         return Base64.getEncoder().encodeToString(data);
+    }
+
+    public static byte[] fromBase64(String base64) {
+        return Base64.getDecoder().decode(base64);
+    }
+
+    public static String toHex(byte[] bytes) {
+        BigInteger bigInteger = new BigInteger(1, bytes);
+        String hex = bigInteger.toString(16);
+
+        int paddingLength = (bytes.length * 2) - hex.length();
+        if (paddingLength > 0) {
+            return String.format("%0" + paddingLength + "d", 0) + hex;
+        } else {
+            return hex;
+        }
     }
 }

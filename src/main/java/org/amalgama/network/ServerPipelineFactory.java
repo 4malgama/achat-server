@@ -8,8 +8,10 @@ public class ServerPipelineFactory implements ChannelPipelineFactory {
     @Override
     public ChannelPipeline getPipeline() throws Exception {
         ChannelPipeline pipeline = Channels.pipeline();
-        pipeline.addLast("decoder", new PacketFrameDecoder());
-        pipeline.addLast("encoder", new PacketFrameEncoder());
+        PacketFrameEncoder encoder = new PacketFrameEncoder();
+        PacketFrameDecoder decoder = new PacketFrameDecoder();
+        pipeline.addLast("decoder", decoder);
+        pipeline.addLast("encoder", encoder);
         pipeline.addLast("handler", ConnectionHandler.getInstance());
         return pipeline;
     }

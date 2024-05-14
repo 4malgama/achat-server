@@ -6,6 +6,10 @@ public class PacketFactory {
     public static Packet makePacket(int id) {
         Packet packet;
         switch (id) {
+            case 1 -> packet = new PacketClientHello();
+            case 2 -> packet = new PacketServerHello();
+            case 3 -> packet = new PacketClientReady();
+            case 4 -> packet = new PacketServerReady();
             case 100 -> packet = new PacketLogin();
             case 200 -> packet = new PacketKick();
             case 101 -> packet = new PacketAuthReject();
