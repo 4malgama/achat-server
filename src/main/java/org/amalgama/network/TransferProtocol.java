@@ -2,6 +2,7 @@ package org.amalgama.network;
 
 import org.amalgama.database.DBService;
 import org.amalgama.database.dao.UserDAO;
+import org.amalgama.database.entities.Attachment;
 import org.amalgama.database.entities.Chat;
 import org.amalgama.database.entities.Message;
 import org.amalgama.database.entities.User;
@@ -19,6 +20,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -104,11 +106,33 @@ public class TransferProtocol {
             JSONObject json = (JSONObject) parser.parse(jsonData);
             message.setContent((String) json.get("content"));
             db.addMessage(message);
-            newMessage(message);
+            //start attachments
+            List<Attachment> attachments = new ArrayList<>();
+            if (json.containsKey("attachments")) {
+                JSONArray jsonAttachments = (JSONArray) json.get("attachments");
+                CacheService cacheService = CacheService.getInstance();
+                for (Object jsonAttachment : jsonAttachments) {
+                    JSONObject attachment = (JSONObject) jsonAttachment;
+                    String name = (String) attachment.get("name");
+                    String data = (String) attachment.get("data");
+                    byte[] fileData = CryptoUtils.fromBase64(data);
+                    Attachment a = new Attachment();
+                    a.setMessage(message);
+                    a.setName(name);
+                    if (name.contains(".")) a.setType(name.substring(name.lastIndexOf('.') + 1).toLowerCase());
+                    else a.setType("txt");
+                    attachments.add(a);
+                    db.addAttachment(a);
+                    cacheService.saveAttachment(chatId, a.getId() + "_" + name, fileData);
+                }
+                //db.addAttachments(attachments);
+            }
+            //end attachments
+            newMessage(message, attachments);
         }
     }
 
-    private void newMessage(Message message) {
+    private void newMessage(Message message, List<Attachment> attachments) {
         JSONObject json = new JSONObject();
         json.put("chat_id", message.getChat().getId());
         json.put("id", message.getId());
@@ -123,6 +147,19 @@ public class TransferProtocol {
         sender.put("surname", message.getUser().getSName());
         sender.put("patronymic", message.getUser().getMName());
         json.put("sender", sender);
+
+        if (!attachments.isEmpty()) {
+            JSONArray attachmentsArray = new JSONArray();
+            for (Attachment attachment : attachments) {
+                JSONObject attachmentJson = new JSONObject();
+                attachmentJson.put("id", attachment.getId());
+                attachmentJson.put("name", attachment.getName());
+                attachmentJson.put("type", attachment.getType());
+                attachmentJson.put("size", CacheService.getInstance().getAttachmentSize(message.getChat().getId(), attachment));
+                attachmentsArray.add(attachmentJson);
+            }
+            json.put("attachments", attachmentsArray);
+        }
 
         PacketNewMessage packet = new PacketNewMessage();
         packet.jsonData = json.toJSONString();
@@ -141,6 +178,16 @@ public class TransferProtocol {
                 User sender = message.getUser();
 
                 JSONArray attachments = new JSONArray();
+
+                CacheService cacheService = CacheService.getInstance();
+                for (Attachment a : db.getAttachments(message)) {
+                    JSONObject attachment = new JSONObject();
+                    attachment.put("id", a.getId());
+                    attachment.put("name", a.getName());
+                    attachment.put("type", a.getType());
+                    attachment.put("size", cacheService.getAttachmentSize(chatId, a));
+                    attachments.add(attachment);
+                }
 
                 JSONObject jsonMessage = new JSONObject();
                 jsonMessage.put("id", message.getId());

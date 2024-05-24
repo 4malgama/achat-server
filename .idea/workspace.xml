@@ -4,24 +4,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="Send messages">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/ResourceLoader.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketClientHello.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketClientReady.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketServerHello.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketServerReady.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/security/certification/CertificationManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/security/encryption/AES.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/security/encryption/AESMode.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/certificate.crt" afterDir="false" />
+    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="Encryption">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ConnectionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ConnectionController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameEncoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameEncoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ServerPipelineFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ServerPipelineFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/database/DBService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/DBService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/AttachmentDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/AttachmentDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/database/entities/Attachment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/entities/Attachment.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/utils/CryptoUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/utils/CryptoUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/servecies/CacheService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/servecies/CacheService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/utils/FileUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/utils/FileUtils.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,18 +65,18 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.48863637",
-    "settings.editor.selected.configurable": "reference.projectsettings.compiler.annotationProcessors"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.48863637&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.projectsettings.compiler.annotationProcessors&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Application.Main">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="org.amalgama.Main" />
@@ -203,7 +193,15 @@
       <option name="project" value="LOCAL" />
       <updated>1715261784114</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Encryption">
+      <option name="closed" value="true" />
+      <created>1715681444031</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1715681444031</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -228,7 +226,8 @@
     <MESSAGE value="Daily update" />
     <MESSAGE value="Init chats" />
     <MESSAGE value="Send messages" />
-    <option name="LAST_COMMIT_MESSAGE" value="Send messages" />
+    <MESSAGE value="Encryption" />
+    <option name="LAST_COMMIT_MESSAGE" value="Encryption" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

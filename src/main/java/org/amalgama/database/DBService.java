@@ -1,9 +1,7 @@
 package org.amalgama.database;
 
-import org.amalgama.database.dao.ChatDAO;
-import org.amalgama.database.dao.MessageDAO;
-import org.amalgama.database.dao.PermissionDAO;
-import org.amalgama.database.dao.UserDAO;
+import org.amalgama.database.dao.*;
+import org.amalgama.database.entities.Attachment;
 import org.amalgama.database.entities.Chat;
 import org.amalgama.database.entities.Message;
 import org.amalgama.database.entities.User;
@@ -106,5 +104,17 @@ public class DBService {
 
     public void addMessage(Message message) {
         MessageDAO.addMessage(message);
+    }
+
+    public void addAttachments(List<Attachment> attachments) {
+        AttachmentDAO.addAttachments(attachments);
+    }
+
+    public void addAttachment(Attachment a) {
+        AttachmentDAO.addAttachment(a);
+    }
+
+    public List<Attachment> getAttachments(Message message) {
+        return AttachmentDAO.getAttachments(message);
     }
 }

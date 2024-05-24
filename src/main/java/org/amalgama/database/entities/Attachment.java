@@ -18,6 +18,9 @@ public class Attachment {
     @Column(name = "type")
     private String Type;
 
+    @Column(name = "name")
+    private String name;
+
     public Attachment() {
     }
 
@@ -43,5 +46,13 @@ public class Attachment {
 
     public void setType(String type) {
         Type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

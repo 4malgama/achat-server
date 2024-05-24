@@ -74,4 +74,28 @@ public class FileUtils {
             e.printStackTrace();
         }
     }
+
+    public static void writeFile(String filePath, byte[] bytes) {
+        try {
+            Files.write(Paths.get(filePath), bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static long getFileSize(String path) {
+        try {
+            return Files.size(Paths.get(path));
+        } catch (IOException e) {
+            return 0;
+        }
+    }
+
+    public static void createDirectoryIfNotExists(String dir) {
+        try {
+            Files.createDirectories(Paths.get(dir));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -55,4 +55,16 @@ public class AttachmentDAO {
             e.printStackTrace();
         }
     }
+
+    public static void addAttachments(List<Attachment> attachments) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            session.beginTransaction();
+            for (Attachment attachment : attachments) {
+                session.persist(attachment);
+            }
+            session.getTransaction().commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
