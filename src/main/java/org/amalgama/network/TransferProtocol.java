@@ -13,6 +13,7 @@ import org.amalgama.security.encryption.AES;
 import org.amalgama.security.encryption.AESMode;
 import org.amalgama.servecies.CacheService;
 import org.amalgama.utils.CryptoUtils;
+import org.amalgama.utils.TokenUtils;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.json.simple.JSONArray;
@@ -58,7 +59,9 @@ public class TransferProtocol {
                     channel.write(p);
                 }
             } else if (packet instanceof PacketLogin packetLogin) {
-                onLogin(packetLogin.login, packetLogin.password);
+                onLogin(packetLogin.login, packetLogin.password, packetLogin.remember);
+            } else if (packet instanceof PacketAuthByToken packetAuthByToken) {
+                onLogin(packetAuthByToken.token);
             } else if (packet instanceof PacketRegister packetRegister) {
                 onRegister(packetRegister.login, packetRegister.password);
             } else if (packet instanceof PacketInitLocation packetInitLocation) {
@@ -75,6 +78,24 @@ public class TransferProtocol {
         } catch (Exception e) {
             System.out.println("[EXCEPTION]: " + e.getMessage());
         }
+    }
+
+    private void onLogin(String token) throws ParseException {
+        Long uid = TokenUtils.parseJWT(token);
+        if (uid != null) {
+            User user = UserDAO.getUser(uid);
+            if (user != null) {
+                clientData.user = user;
+                PacketAuthAccept packet = new PacketAuthAccept();
+                packet.uid = uid;
+                channel.write(packet);
+                initProfile();
+                initChats();
+                return;
+            }
+        }
+
+        channel.write(new PacketAuthReject(clientData.locale.equalsIgnoreCase("RU") ? "Неверный логин или пароль" : "Invalid credentials"));
     }
 
     private void onClientHello() throws Exception {
@@ -343,11 +364,14 @@ public class TransferProtocol {
         return no_char_repeat && good_length && good_format && !simple_password;
     }
 
-    private void onLogin(String login, String password) {
+    private void onLogin(String login, String password, boolean remember) {
         if (dbService.validateCredentials(login, password)) {
             clientData.user = UserDAO.getUser(login);
             PacketAuthAccept packet = new PacketAuthAccept();
             packet.uid = clientData.user.getId();
+            if (remember) {
+                packet.token = TokenUtils.newJWT(clientData.user.getId());
+            }
             channel.write(packet);
             initProfile();
             initChats();

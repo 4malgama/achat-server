@@ -53,6 +53,16 @@ public class CryptoUtils {
         return Base64.getEncoder().encodeToString(data);
     }
 
+    /**
+     * Generates a Base64 encoded string from the given String data.
+     *
+     * @param  data  the String to be encoded
+     * @return       the Base64 encoded string representation of the input data
+     */
+    public static String getBase64(String data) {
+        return Base64.getEncoder().encodeToString(data.getBytes());
+    }
+
     public static byte[] fromBase64(String base64) {
         return Base64.getDecoder().decode(base64);
     }
@@ -66,6 +76,17 @@ public class CryptoUtils {
             return String.format("%0" + paddingLength + "d", 0) + hex;
         } else {
             return hex;
+        }
+    }
+
+    public static String getSHA256(String string) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(string.getBytes("UTF-8"));
+            return toHex(hash);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

@@ -5,6 +5,7 @@ import org.jboss.netty.buffer.ChannelBuffer;
 public class PacketLogin extends Packet{
     public String login;
     public String password;
+    public boolean remember;
 
     public PacketLogin() {
         this.id = 100;
@@ -12,6 +13,7 @@ public class PacketLogin extends Packet{
 
     @Override
     public void receive(ChannelBuffer buffer) {
+        remember = buffer.readByte() != 0;
         int loginLength = buffer.readShort();
         int passwordLength = buffer.readShort();
         StringBuilder loginBuilder = new StringBuilder();
