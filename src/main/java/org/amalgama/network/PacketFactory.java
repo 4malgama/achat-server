@@ -26,6 +26,7 @@ public class PacketFactory {
             case 1004 -> packet = new PacketInitMessages();
             case 2000 -> packet = new PacketSendMessage();
             case 2001 -> packet = new PacketNewMessage();
+            case 2500 -> packet = new PacketSearch();
             default -> packet = null;
         }
         return packet;

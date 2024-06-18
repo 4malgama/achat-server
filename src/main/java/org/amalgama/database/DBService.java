@@ -117,4 +117,8 @@ public class DBService {
     public List<Attachment> getAttachments(Message message) {
         return AttachmentDAO.getAttachments(message);
     }
+
+    public List<User> getAllUsersByLogin(String login) {
+        return UserDAO.getUsersByLogin(login);
+    }
 }

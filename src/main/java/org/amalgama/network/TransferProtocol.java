@@ -74,9 +74,37 @@ public class TransferProtocol {
                 onGetInitMessages(packetGetInitMessages.chatId);
             } else if (packet instanceof PacketSendMessage packetSendMessage) {
                 onSendMessage(packetSendMessage.chatId, packetSendMessage.jsonData);
+            } else if (packet instanceof PacketSearch packetSearch) {
+                onSearch(packetSearch.json);
             }
         } catch (Exception e) {
             System.out.println("[EXCEPTION]: " + e.getMessage());
+        }
+    }
+
+    private void onSearch(String json) {
+        JSONParser parser = new JSONParser();
+        try {
+            JSONObject jsonSearch = (JSONObject) parser.parse(json);
+            String query = (String) jsonSearch.get("text");
+            List<User> users = dbService.getAllUsersByLogin(query);
+
+            JSONObject result = new JSONObject();
+            JSONArray jsonUsers = new JSONArray();
+            for (User user : users) {
+                JSONObject jsonUser = new JSONObject();
+                jsonUser.put("login", user.getLogin());
+                jsonUser.put("display_name", user.getSName() + " " + user.getFName() + " " + user.getMName());
+                jsonUser.put("avatar_data", CryptoUtils.getBase64(CacheService.getInstance().getUserAvatar(user.getId())));
+                jsonUsers.add(jsonUser);
+            }
+            result.put("results", jsonUsers);
+
+            PacketSearch resultSearch = new PacketSearch();
+            resultSearch.json = result.toJSONString();
+            channel.write(resultSearch);
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
     }
 
@@ -397,12 +425,16 @@ public class TransferProtocol {
                 User user = chat.getUser();
                 if (Objects.equals(user.getId(), clientData.user.getId()))
                     user = chat.getSecond();
+                if (user == null)
+                    continue;
                 jsonUser.put("id", user.getId());
                 jsonUser.put("surname", user.getSName());
                 jsonUser.put("name", user.getFName());
                 jsonUser.put("patronymic", user.getMName());
                 jsonUser.put("post", user.getPost());
-                jsonUser.put("avatar_data", CryptoUtils.getBase64(cs.getUserAvatar(user.getId())));
+                byte[] avatarBytes = cs.getUserAvatar(user.getId());
+                if (avatarBytes != null)
+                    jsonUser.put("avatar_data", CryptoUtils.getBase64(avatarBytes));
                 jsonChat.put("user", jsonUser);
             }
             jsonChats.add(jsonChat);

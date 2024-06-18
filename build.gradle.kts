@@ -1,5 +1,25 @@
 plugins {
-    id("java")
+    kotlin("jvm") version "1.8.20"
+    application
+}
+
+application {
+    mainClass.set("amalgama.Main")
+}
+
+tasks.register<Jar>("fatJar") {
+    archiveClassifier.set("all")
+    manifest {
+        attributes["Main-Class"] = "org.amalgama.Main"
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(sourceSets.main.get().output)
+
+    dependsOn(configurations.runtimeClasspath)
+
+    from({
+        configurations.runtimeClasspath.get().filter { it.name.endsWith("jar") }.map { zipTree(it) }
+    })
 }
 
 group = "org.amalgama"
@@ -22,7 +42,6 @@ dependencies {
     implementation("org.hibernate:hibernate-core:6.2.7.Final")
     implementation("org.postgresql:postgresql:42.6.1")
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
-    compileOnly("org.projectlombok:lombok:1.18.24")
     runtimeOnly("org.apache.logging.log4j:log4j-core")
 }
 
@@ -38,14 +57,18 @@ tasks.withType<Copy>() {
     duplicatesStrategy = DuplicatesStrategy.WARN
 }
 
-tasks.withType<Jar>() {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
-
 tasks.withType<JavaCompile>() {
     options.encoding = "UTF-8"
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs ("src/main/resources")
+        }
+    }
 }

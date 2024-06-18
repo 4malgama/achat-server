@@ -5,6 +5,8 @@ import org.amalgama.database.HibernateUtil;
 import org.amalgama.database.entities.User;
 import org.hibernate.Session;
 
+import java.util.List;
+
 public class UserDAO {
     public static User getUser(Long id) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -67,6 +69,18 @@ public class UserDAO {
             session.getTransaction().commit();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public static List<User> getUsersByLogin(String login) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("from User where LOWER(Login) = LOWER(?1)", User.class)
+                    .setParameter(1, login)
+                    .getResultList();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }
