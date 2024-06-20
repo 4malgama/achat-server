@@ -121,4 +121,8 @@ public class DBService {
     public List<User> getAllUsersByLogin(String login) {
         return UserDAO.getUsersByLogin(login);
     }
+
+    public Attachment getAttachment(long fileId) {
+        return AttachmentDAO.getAttachment(fileId);
+    }
 }

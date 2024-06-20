@@ -9,15 +9,14 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="Auth by token">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketSearch.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="Bugfix &amp; Search features">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketDownloadFile.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketSendFile.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/database/DBService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/DBService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/UserDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/UserDAO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFactory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/servecies/CacheService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/servecies/CacheService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -292,7 +291,15 @@
       <option name="project" value="LOCAL" />
       <updated>1717617464334</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Bugfix &amp; Search features">
+      <option name="closed" value="true" />
+      <created>1718698555336</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1718698555336</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -320,7 +327,8 @@
     <MESSAGE value="Encryption" />
     <MESSAGE value="Sending Files" />
     <MESSAGE value="Auth by token" />
-    <option name="LAST_COMMIT_MESSAGE" value="Auth by token" />
+    <MESSAGE value="Bugfix &amp; Search features" />
+    <option name="LAST_COMMIT_MESSAGE" value="Bugfix &amp; Search features" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

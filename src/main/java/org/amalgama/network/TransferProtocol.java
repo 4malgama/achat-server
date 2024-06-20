@@ -76,10 +76,34 @@ public class TransferProtocol {
                 onSendMessage(packetSendMessage.chatId, packetSendMessage.jsonData);
             } else if (packet instanceof PacketSearch packetSearch) {
                 onSearch(packetSearch.json);
+            } else if (packet instanceof PacketDownloadFile packetDownloadFile) {
+                onDownloadFile(packetDownloadFile.fileId);
             }
         } catch (Exception e) {
             System.out.println("[EXCEPTION]: " + e.getMessage());
         }
+    }
+
+    private void onDownloadFile(long fileId) {
+        Attachment attachment = dbService.getAttachment(fileId);
+        if (attachment == null)
+            return;
+        Message message = attachment.getMessage();
+        if (message == null)
+            return;
+        Chat chat = message.getChat();
+        if (chat == null)
+            return;
+        if (!chat.isGroup() && !(Objects.equals(chat.getUser().getId(), clientData.user.getId()) || Objects.equals(chat.getSecond().getId(), clientData.user.getId())))
+            return;
+        CacheService cache = CacheService.getInstance();
+        byte[] bytes = cache.readAttachment(chat.getId(), attachment);
+        if (bytes == null)
+            return;
+        PacketSendFile packet = new PacketSendFile();
+        packet.fileData = bytes;
+        packet.fileName = attachment.getName();
+        channel.write(packet);
     }
 
     private void onSearch(String json) {

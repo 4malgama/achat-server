@@ -35,4 +35,16 @@ public class CacheService {
         FileUtils.createDirectoryIfNotExists(dir);
         return FileUtils.getFileSize(dir + a.getId() + "_" + a.getName());
     }
+
+    /**
+     * Reads an attachment from the specified chat ID.
+     *
+     * @param  chatId   the ID of the chat
+     * @param  a        the Attachment object to read
+     * @return          the byte array of the attachment data or null if not found
+     */
+    public byte[] readAttachment(long chatId, Attachment a) {
+        String dir = serverPath + "attachments\\" + chatId + "\\";
+        return FileUtils.readFile(dir + a.getId() + "_" + a.getName());
+    }
 }
