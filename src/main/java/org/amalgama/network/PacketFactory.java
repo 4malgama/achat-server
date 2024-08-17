@@ -29,6 +29,8 @@ public class PacketFactory {
             case 2500 -> packet = new PacketSearch();
             case 2700 -> packet = new PacketDownloadFile();
             case 2701 -> packet = new PacketSendFile();
+            case 2800 -> packet = new PacketCreateChatWithMessage();
+            case 2850 -> packet = new PacketUpdateChatId();
             default -> packet = null;
         }
         return packet;

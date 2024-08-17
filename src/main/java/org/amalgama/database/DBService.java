@@ -125,4 +125,16 @@ public class DBService {
     public Attachment getAttachment(long fileId) {
         return AttachmentDAO.getAttachment(fileId);
     }
+
+    public Chat getChat(User user1, User user2) {
+        return ChatDAO.getChatBetweenUsers(user1, user2);
+    }
+
+    public User getUser(long userId) {
+        return UserDAO.getUser(userId);
+    }
+
+    public void addChat(Chat chat) {
+        ChatDAO.addChat(chat);
+    }
 }

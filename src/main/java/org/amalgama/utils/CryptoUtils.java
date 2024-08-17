@@ -50,6 +50,8 @@ public class CryptoUtils {
      * @return       the Base64 encoded string representation of the input data
      */
     public static String getBase64(byte[] data) {
+        if (data == null)
+            return null;
         return Base64.getEncoder().encodeToString(data);
     }
 

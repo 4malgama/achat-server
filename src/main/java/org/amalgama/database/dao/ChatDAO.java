@@ -95,4 +95,16 @@ public class ChatDAO {
             return null;
         }
     }
+
+    public static Chat getChatBetweenUsers(User user1, User user2) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("FROM Chat WHERE (User = ?1 AND Second = ?2) OR (User = ?2 AND Second = ?1)", Chat.class)
+                    .setParameter(1, user1)
+                    .setParameter(2, user2)
+                    .getSingleResult();
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
 }

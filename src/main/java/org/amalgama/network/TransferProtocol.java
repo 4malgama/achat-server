@@ -78,10 +78,35 @@ public class TransferProtocol {
                 onSearch(packetSearch.json);
             } else if (packet instanceof PacketDownloadFile packetDownloadFile) {
                 onDownloadFile(packetDownloadFile.fileId);
+            } else if (packet instanceof PacketCreateChatWithMessage packetCreateChatWithMessage) {
+                onCreateChatWithMessage(packetCreateChatWithMessage.userId, packetCreateChatWithMessage.messageData);
             }
         } catch (Exception e) {
             System.out.println("[EXCEPTION]: " + e.getMessage());
         }
+    }
+
+    private void onCreateChatWithMessage(long userId, String messageData) throws ParseException {
+        DBService db = DBService.getInstance();
+        User user = db.getUser(userId);
+        if (db.getChat(clientData.user, user) != null)
+            return;
+        if (user != null) {
+            Chat chat = new Chat();
+            chat.setGroup(false);
+            chat.setUser(clientData.user);
+            chat.setSecond(user);
+
+            db.addChat(chat);
+            updateChatId(chat.getId(), user.getLogin());
+            //TODO send 'create chat' to second user
+            onSendMessage(chat.getId(), messageData);
+        }
+    }
+
+    private void updateChatId(Long id, String login) {
+        PacketUpdateChatId packet = new PacketUpdateChatId(id, login);
+        channel.write(packet);
     }
 
     private void onDownloadFile(long fileId) {
@@ -116,10 +141,23 @@ public class TransferProtocol {
             JSONObject result = new JSONObject();
             JSONArray jsonUsers = new JSONArray();
             for (User user : users) {
+                if (Objects.equals(user.getId(), clientData.user.getId()))
+                    continue;
+
+                Chat chat = dbService.getChat(user, clientData.user);
                 JSONObject jsonUser = new JSONObject();
                 jsonUser.put("login", user.getLogin());
-                jsonUser.put("display_name", user.getSName() + " " + user.getFName() + " " + user.getMName());
+                if (user.getFName().isEmpty() && user.getSName().isEmpty() && user.getMName().isEmpty())
+                    jsonUser.put("display_name", user.getLogin());
+                else
+                    jsonUser.put("display_name", user.getSName() + " " + user.getFName() + " " + user.getMName());
+                jsonUser.put("fname", user.getFName());
+                jsonUser.put("sname", user.getSName());
+                jsonUser.put("mname", user.getMName());
                 jsonUser.put("avatar_data", CryptoUtils.getBase64(CacheService.getInstance().getUserAvatar(user.getId())));
+                jsonUser.put("user_id", user.getId());
+                jsonUser.put("chat_id", (chat != null ? chat.getId() : 0));
+                jsonUser.put("post", user.getPost());
                 jsonUsers.add(jsonUser);
             }
             result.put("results", jsonUsers);
