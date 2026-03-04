@@ -21,6 +21,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -99,7 +100,31 @@ public class TransferProtocol {
 
             db.addChat(chat);
             updateChatId(chat.getId(), user.getLogin());
-            //TODO send 'create chat' to second user
+
+            JSONParser parser = new JSONParser();
+
+            byte[] avatarData = CacheService.getInstance().getUserAvatar(clientData.user.getId());
+            String avatarBase64 = CryptoUtils.getBase64(avatarData);
+
+            JSONObject jsonUserData = new JSONObject();
+            jsonUserData.put("user_id", clientData.user.getId());
+            jsonUserData.put("fname", clientData.user.getFName());
+            jsonUserData.put("sname", clientData.user.getSName());
+            jsonUserData.put("mname", clientData.user.getMName());
+            jsonUserData.put("post", clientData.user.getPost());
+            jsonUserData.put("avatar_data", avatarBase64);
+
+            JSONObject json = new JSONObject();
+            json.put("chat_id", chat.getId());
+            json.put("user_data", jsonUserData);
+            PacketCreateChat packet = new PacketCreateChat();
+            packet.jsonData = json.toJSONString();
+
+            TransferProtocol secondClient = getClientByLogin(user.getLogin());
+            if (secondClient != null) {
+                secondClient.send(packet);
+            }
+
             onSendMessage(chat.getId(), messageData);
         }
     }
@@ -508,6 +533,24 @@ public class TransferProtocol {
         PacketInitChats packetInitChats = new PacketInitChats();
         packetInitChats.jsonData = json.toJSONString();
         channel.write(packetInitChats);
+    }
+
+    public static TransferProtocol getClientByIP(SocketAddress ip) {
+        for (TransferProtocol client : ConnectionHandler.getInstance().getController().getConnections()) {
+            if (client.channel.getRemoteAddress().equals(ip))
+                return client;
+        }
+
+        return null;
+    }
+
+    public static TransferProtocol getClientByLogin(String login) {
+        for (TransferProtocol client : ConnectionHandler.getInstance().getController().getConnections()) {
+            if (client.clientData.user.getLogin().equals(login))
+                return client;
+        }
+
+        return null;
     }
 
     public void close() {

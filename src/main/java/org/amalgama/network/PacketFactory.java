@@ -31,6 +31,7 @@ public class PacketFactory {
             case 2701 -> packet = new PacketSendFile();
             case 2800 -> packet = new PacketCreateChatWithMessage();
             case 2850 -> packet = new PacketUpdateChatId();
+            case 2860 -> packet = new PacketCreateChat();
             default -> packet = null;
         }
         return packet;

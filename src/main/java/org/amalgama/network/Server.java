@@ -44,7 +44,7 @@ public class Server implements Destroyable {
     public void start() {
         if (address != null) networkServer.bind(new InetSocketAddress(address, port));
         else networkServer.bind(new InetSocketAddress(port));
-        Logger.getGlobal().info("Server available on " + (address == null ? "127.0.0.1" : address) + ":" + port);
+        Logger.getGlobal().info("Server available on " + (address == null ? "0.0.0.0" : address) + ":" + port);
     }
 
     @Override
