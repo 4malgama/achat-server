@@ -47,4 +47,10 @@ public class CacheService {
         String dir = serverPath + "attachments\\" + chatId + "\\";
         return FileUtils.readFile(dir + a.getId() + "_" + a.getName());
     }
+
+    public void setUserAvatar(Long userId, byte[] avatarData) {
+        String dir = serverPath + "avatars\\";
+        FileUtils.createDirectoryIfNotExists(dir);
+        FileUtils.writeFile(dir + userId + ".jpg", avatarData);
+    }
 }

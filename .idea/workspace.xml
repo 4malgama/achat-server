@@ -9,13 +9,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="Search update">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketCreateChat.java" afterDir="false" />
+    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="Search bug fixes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/Server.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/certificate.crt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/certificate.crt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketUpdateAvatar.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketUpdateAvatar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/servecies/CacheService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/servecies/CacheService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -314,7 +312,15 @@
       <option name="project" value="LOCAL" />
       <updated>1723903026541</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Search bug fixes">
+      <option name="closed" value="true" />
+      <created>1772651000626</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1772651000626</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -345,7 +351,8 @@
     <MESSAGE value="Bugfix &amp; Search features" />
     <MESSAGE value="Downloading Files" />
     <MESSAGE value="Search update" />
-    <option name="LAST_COMMIT_MESSAGE" value="Search update" />
+    <MESSAGE value="Search bug fixes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Search bug fixes" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

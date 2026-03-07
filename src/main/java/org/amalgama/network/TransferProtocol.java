@@ -81,10 +81,16 @@ public class TransferProtocol {
                 onDownloadFile(packetDownloadFile.fileId);
             } else if (packet instanceof PacketCreateChatWithMessage packetCreateChatWithMessage) {
                 onCreateChatWithMessage(packetCreateChatWithMessage.userId, packetCreateChatWithMessage.messageData);
+            } else if (packet instanceof PacketUpdateAvatar packetUpdateAvatar) {
+                onUpdateAvatar(packetUpdateAvatar.avatarData);
             }
         } catch (Exception e) {
             System.out.println("[EXCEPTION]: " + e.getMessage());
         }
+    }
+
+    private void onUpdateAvatar(byte[] avatarData) {
+        CacheService.getInstance().setUserAvatar(clientData.user.getId(), avatarData);
     }
 
     private void onCreateChatWithMessage(long userId, String messageData) throws ParseException {
@@ -432,6 +438,8 @@ public class TransferProtocol {
         byte[] avatarData = CacheService.getInstance().getUserAvatar(clientData.user.getId());
         if (avatarData == null)
             return;
+
+        //TODO send null image if avatarData == null
 
         if (!avatarHash.equals(CryptoUtils.getHash(avatarData, "MD5"))) {
             PacketUpdateAvatar packet = new PacketUpdateAvatar();
