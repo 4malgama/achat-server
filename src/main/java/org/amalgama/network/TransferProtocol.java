@@ -83,10 +83,16 @@ public class TransferProtocol {
                 onCreateChatWithMessage(packetCreateChatWithMessage.userId, packetCreateChatWithMessage.messageData);
             } else if (packet instanceof PacketUpdateAvatar packetUpdateAvatar) {
                 onUpdateAvatar(packetUpdateAvatar.avatarData);
+            } else if (packet instanceof PacketTyping packetTyping) {
+                onTyping(packetTyping.chatId, packetTyping.isTyping);
             }
         } catch (Exception e) {
             System.out.println("[EXCEPTION]: " + e.getMessage());
         }
+    }
+
+    private void onTyping(long chatId, boolean isTyping) {
+        ChatService.sendTyping(chatId, clientData.user, isTyping);
     }
 
     private void onUpdateAvatar(byte[] avatarData) {
@@ -382,6 +388,13 @@ public class TransferProtocol {
         }
 
         //TODO private settings
+        if (json.containsKey("privacy")) {
+            JSONObject jsonPrivacy = (JSONObject) json.get("privacy");
+            JSONParser parserSettings = new JSONParser();
+            JSONObject jsonSettings = (JSONObject) parserSettings.parse(clientData.user.getSettingsData());
+            jsonSettings.put("privacy_settings", jsonPrivacy);
+            clientData.user.setSettingsData(jsonSettings.toJSONString());
+        }
 
         UserDAO.updateUser(clientData.user);
         initProfile();
@@ -391,7 +404,7 @@ public class TransferProtocol {
         try {
             JSONParser parser = new JSONParser();
             JSONObject json = (JSONObject) parser.parse(clientData.user.getSettingsData());
-            JSONObject privateSettings = (JSONObject) json.get("private_settings");
+            JSONObject privateSettings = (JSONObject) json.get("privacy_settings");
 
             JSONObject profile_info = new JSONObject();
             profile_info.put("login", clientData.user.getLogin());
@@ -406,15 +419,17 @@ public class TransferProtocol {
             profile_info.put("cash", clientData.user.getCash());
             profile_info.put("registration_date", clientData.user.getRegisterTimestamp());
 
-            JSONObject private_settings = new JSONObject();
-            private_settings.put("see_avatar", privateSettings.get("see_avatar"));
-            private_settings.put("see_description", privateSettings.get("see_description"));
-            private_settings.put("see_post", privateSettings.get("see_post"));
-            private_settings.put("send_friend_request", privateSettings.get("send_friend_request"));
-            private_settings.put("see_online_status", privateSettings.get("see_online_status"));
-            private_settings.put("send_messages", privateSettings.get("send_messages"));
-            private_settings.put("can_invite_groups", privateSettings.get("can_invite_groups"));
-            private_settings.put("hide_forwards", privateSettings.get("hide_forwards"));
+            JSONObject privacy_settings = new JSONObject();
+            privacy_settings.put("see_profile_photo", privateSettings.get("see_profile_photo"));
+            privacy_settings.put("see_profile_description", privateSettings.get("see_profile_description"));
+            privacy_settings.put("see_profile_comments", privateSettings.get("see_profile_comments"));
+            privacy_settings.put("leave_comments", privateSettings.get("leave_comments"));
+            privacy_settings.put("see_profile_post", privateSettings.get("see_profile_post"));
+            privacy_settings.put("send_friend_request", privateSettings.get("send_friend_request"));
+            privacy_settings.put("see_online_status", privateSettings.get("see_online_status"));
+            privacy_settings.put("send_message", privateSettings.get("send_message"));
+            privacy_settings.put("invite_to_groups", privateSettings.get("invite_to_groups"));
+            privacy_settings.put("display_name", privateSettings.get("display_name"));
 
             JSONObject permissions = new JSONObject();
             permissions.put("ban", false);
@@ -425,7 +440,7 @@ public class TransferProtocol {
 
             JSONObject init_profile = new JSONObject();
             init_profile.put("profile_info", profile_info);
-            init_profile.put("private_settings", private_settings);
+            init_profile.put("privacy_settings", privacy_settings);
             init_profile.put("permissions", permissions);
 
             PacketInitProfile packetInitProfile = new PacketInitProfile();

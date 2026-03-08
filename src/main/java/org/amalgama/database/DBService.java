@@ -26,17 +26,19 @@ public class DBService {
 
     public User registerUser(String login, String password) {
         JSONObject jsonPrivateSettings = new JSONObject();
-        jsonPrivateSettings.put("see_avatar", "all");
-        jsonPrivateSettings.put("see_description", "all");
-        jsonPrivateSettings.put("see_post", "all");
-        jsonPrivateSettings.put("send_friend_request", "all");
-        jsonPrivateSettings.put("see_online_status", "all");
-        jsonPrivateSettings.put("send_messages", "all");
-        jsonPrivateSettings.put("can_invite_groups", "all");
-        jsonPrivateSettings.put("hide_forwards", false);
+        jsonPrivateSettings.put("see_profile_photo", "everyone");
+        jsonPrivateSettings.put("see_profile_description", "everyone");
+        jsonPrivateSettings.put("see_profile_comments", "everyone");
+        jsonPrivateSettings.put("leave_comments", "everyone");
+        jsonPrivateSettings.put("see_profile_post", "everyone");
+        jsonPrivateSettings.put("send_friend_request", "everyone");
+        jsonPrivateSettings.put("see_online_status", "everyone");
+        jsonPrivateSettings.put("send_message", "everyone");
+        jsonPrivateSettings.put("invite_to_groups", "everyone");
+        jsonPrivateSettings.put("display_name", "");
 
         JSONObject jsonSettings = new JSONObject();
-        jsonSettings.put("private_settings", jsonPrivateSettings);
+        jsonSettings.put("privacy_settings", jsonPrivateSettings);
         jsonSettings.put("admin", false);
         jsonSettings.put("superadmin", false);
 

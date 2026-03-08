@@ -7,6 +7,7 @@ import org.amalgama.network.ConnectionController;
 import org.amalgama.network.ConnectionHandler;
 import org.amalgama.network.TransferProtocol;
 import org.amalgama.network.packets.Packet;
+import org.amalgama.network.packets.PacketTyping;
 
 import java.util.Objects;
 
@@ -22,6 +23,28 @@ public class ChatService {
             for (TransferProtocol net : controller.getConnections()) {
                 if (Objects.equals(net.clientData.user.getId(), user1.getId()) || Objects.equals(net.clientData.user.getId(), user2.getId())) {
                     net.send(packet);
+                }
+            }
+        }
+    }
+
+    public static void sendTyping(long chatId, User user, boolean isTyping) {
+        Chat chat = DBService.getInstance().getChat(user, chatId);
+        if (chat != null) {
+            User receiver = chat.getSecond();
+
+            if (Objects.equals(receiver.getId(), user.getId()))
+                receiver = chat.getUser();
+
+            if (receiver != null) {
+                PacketTyping packet = new PacketTyping();
+                packet.chatId = chatId;
+                packet.isTyping = isTyping;
+                ConnectionController controller = ConnectionHandler.getInstance().getController();
+                for (TransferProtocol net : controller.getConnections()) {
+                    if (Objects.equals(net.clientData.user.getId(), receiver.getId())) {
+                        net.send(packet);
+                    }
                 }
             }
         }
