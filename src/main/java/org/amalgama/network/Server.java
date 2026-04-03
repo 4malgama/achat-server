@@ -35,7 +35,7 @@ public class Server implements Destroyable {
         networkServer = new ServerBootstrap(new NioServerSocketChannelFactory(bossExec, ioExec, 4));
         networkServer.setOption("backlog", 500);
         networkServer.setOption("connectTimeoutMillis", 10000);
-        networkServer.setOption("child.tcpNpDelay", true);
+        networkServer.setOption("child.tcpNoDelay", true);
         networkServer.setOption("child.keepAlive", true);
         networkServer.setPipelineFactory(new ServerPipelineFactory());
         return networkServer;

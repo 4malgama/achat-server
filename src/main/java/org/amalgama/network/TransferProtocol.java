@@ -222,7 +222,7 @@ public class TransferProtocol {
             }
         }
 
-        channel.write(new PacketAuthReject(clientData.locale.equalsIgnoreCase("RU") ? "Неверный логин или пароль" : "Invalid credentials"));
+        channel.write(new PacketAuthReject(clientData.locale.equalsIgnoreCase("RU") ? "Ваш токен устарел или несуществует" : "Your token is invalid or does not exist"));
     }
 
     private void onClientHello() throws Exception {
