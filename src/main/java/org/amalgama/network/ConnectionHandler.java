@@ -1,5 +1,6 @@
 package org.amalgama.network;
 
+import org.amalgama.network.packets.Packet;
 import org.jboss.netty.channel.*;
 
 import java.util.logging.Logger;
@@ -11,7 +12,11 @@ public class ConnectionHandler extends SimpleChannelUpstreamHandler {
 
     @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
-        controller.acceptMessage(ctx, e);
+        if (e.getMessage() instanceof Packet) {
+            controller.acceptPacket(ctx, (Packet) e.getMessage());
+            return;
+        }
+        super.messageReceived(ctx, e);
     }
 
     @Override

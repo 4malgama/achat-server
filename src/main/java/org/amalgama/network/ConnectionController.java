@@ -31,6 +31,12 @@ public class ConnectionController {
         }
     }
 
+    public void acceptPacket(ChannelHandlerContext ctx, Packet packet) {
+        if (connections.containsKey(ctx.getChannel())) {
+            connections.get(ctx.getChannel()).acceptPacket(packet);
+        }
+    }
+
     public Collection<TransferProtocol> getConnections() {
         return connections.values();
     }

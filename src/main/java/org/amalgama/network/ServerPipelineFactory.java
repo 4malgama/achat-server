@@ -5,6 +5,12 @@ import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 
 public class ServerPipelineFactory implements ChannelPipelineFactory {
+    private ConnectionController controller;
+
+    public ServerPipelineFactory(ConnectionController controller) {
+        this.controller = controller;
+    }
+
     @Override
     public ChannelPipeline getPipeline() throws Exception {
         ChannelPipeline pipeline = Channels.pipeline();

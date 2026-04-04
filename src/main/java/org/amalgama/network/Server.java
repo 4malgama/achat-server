@@ -28,6 +28,12 @@ public class Server implements Destroyable {
         networkServer = initServerBootstrap();
     }
 
+    public Server(int port, ConnectionController controller) {
+        this.address = null;
+        this.port = port;
+        networkServer = initServerBootstrap(controller);
+    }
+
     private ServerBootstrap initServerBootstrap() {
         final ServerBootstrap networkServer;
         ExecutorService bossExec = new OrderedMemoryAwareThreadPoolExecutor(1, 400000000, 2000000000, 60, TimeUnit.SECONDS);
@@ -37,7 +43,20 @@ public class Server implements Destroyable {
         networkServer.setOption("connectTimeoutMillis", 10000);
         networkServer.setOption("child.tcpNoDelay", true);
         networkServer.setOption("child.keepAlive", true);
-        networkServer.setPipelineFactory(new ServerPipelineFactory());
+        networkServer.setPipelineFactory(new ServerPipelineFactory(null));
+        return networkServer;
+    }
+
+    private ServerBootstrap initServerBootstrap(ConnectionController controller) {
+        final ServerBootstrap networkServer;
+        ExecutorService bossExec = new OrderedMemoryAwareThreadPoolExecutor(1, 400000000, 2000000000, 60, TimeUnit.SECONDS);
+        ExecutorService ioExec = new OrderedMemoryAwareThreadPoolExecutor(4, 400000000, 2000000000, 60, TimeUnit.SECONDS);
+        networkServer = new ServerBootstrap(new NioServerSocketChannelFactory(bossExec, ioExec, 4));
+        networkServer.setOption("backlog", 500);
+        networkServer.setOption("connectTimeoutMillis", 10000);
+        networkServer.setOption("child.tcpNoDelay", true);
+        networkServer.setOption("child.keepAlive", true);
+        networkServer.setPipelineFactory(new ServerPipelineFactory(controller));
         return networkServer;
     }
 

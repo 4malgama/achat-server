@@ -9,13 +9,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="Add - Typing indicator">
+    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="Bugfix">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketDispatchHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TcpConnectionHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketHandshakeHandler.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketPacketDecoder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketPacketEncoder.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketPipelineFactory.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ConnectionController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ConnectionController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameEncoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameEncoder.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ConnectionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ConnectionHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ServerPipelineFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ServerPipelineFactory.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -338,7 +345,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772966450457</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Bugfix">
+      <option name="closed" value="true" />
+      <created>1775236406648</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1775236406648</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -372,7 +387,8 @@
     <MESSAGE value="Search bug fixes" />
     <MESSAGE value="Add - Update User Image" />
     <MESSAGE value="Add - Typing indicator" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add - Typing indicator" />
+    <MESSAGE value="Bugfix" />
+    <option name="LAST_COMMIT_MESSAGE" value="Bugfix" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
