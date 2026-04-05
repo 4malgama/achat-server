@@ -10,6 +10,12 @@ import org.jboss.netty.handler.codec.replay.ReplayingDecoder;
 import org.jboss.netty.handler.codec.replay.VoidEnum;
 
 public class PacketFrameDecoder extends ReplayingDecoder<VoidEnum> {
+    private final ConnectionController controller;
+
+    public PacketFrameDecoder(ConnectionController controller) {
+        this.controller = controller;
+    }
+
     @Override
     public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         ctx.sendUpstream(e);
@@ -22,7 +28,6 @@ public class PacketFrameDecoder extends ReplayingDecoder<VoidEnum> {
 
     @Override
     protected Object decode(ChannelHandlerContext ctx, Channel channel, ChannelBuffer buffer, VoidEnum state) throws Exception {
-        ConnectionController controller = ConnectionHandler.getInstance().getController();
         TransferProtocol client = controller.getConnection(channel);
         if (client != null && client.encryptionEnabled) {
             if (buffer.readableBytes() < 4)

@@ -8,6 +8,12 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
 public class PacketFrameEncoder extends OneToOneEncoder {
+    private final ConnectionController controller;
+
+    public PacketFrameEncoder(ConnectionController controller) {
+        this.controller = controller;
+    }
+
     @Override
     protected Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
         if (!(msg instanceof Packet))
@@ -17,7 +23,6 @@ public class PacketFrameEncoder extends OneToOneEncoder {
         ChannelBuffer buffer = ChannelBuffers.dynamicBuffer();
         Packet.write(packet, buffer);
 
-        ConnectionController controller = ConnectionHandler.getInstance().getController();
         TransferProtocol client = controller.getConnection(channel);
         if (client != null && client.encryptionEnabled) {
             byte[] bytes = new byte[buffer.readableBytes()];

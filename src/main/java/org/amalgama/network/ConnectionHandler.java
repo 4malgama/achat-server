@@ -5,6 +5,7 @@ import org.jboss.netty.channel.*;
 
 import java.util.logging.Logger;
 
+@Deprecated(forRemoval = true)
 public class ConnectionHandler extends SimpleChannelUpstreamHandler {
     private static ConnectionHandler instance;
     private final ConnectionController controller = new ConnectionController();

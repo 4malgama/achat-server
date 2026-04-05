@@ -15,7 +15,7 @@ public class TokenUtils {
         header.put("typ", "JWT");
         JSONObject payload = new JSONObject();
         payload.put("id", id);
-        payload.put("exp", System.currentTimeMillis() / 1000 + 60 * 60 * 24 * 7);   //1 week
+        payload.put("exp", System.currentTimeMillis() / 1000 + TimeUtils.daysToSeconds(30));   //30 days
         String message = CryptoUtils.getBase64(header.toJSONString()) + "." + CryptoUtils.getBase64(payload.toJSONString());
         String signature = CryptoUtils.getSHA256(message + JWT_SECRET);
         return message + "." + signature;

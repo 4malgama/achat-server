@@ -27,16 +27,19 @@ import java.util.List;
 import java.util.Objects;
 
 public class TransferProtocol {
-    private ChannelHandlerContext context;
-    private Channel channel;
-    public boolean encryptionSent = false;
+    private final Channel channel;
+
+    public SessionState getState() {
+        return state;
+    }
+
+    private SessionState state = SessionState.WAIT_CLIENT_HELLO;
     public boolean encryptionEnabled = false;
     public ClientData clientData = new ClientData();
     public AES aes;
-    private DBService dbService = DBService.getInstance();
+    private final DBService dbService = DBService.getInstance();
 
     public TransferProtocol(ChannelHandlerContext ctx) {
-        this.context = ctx;
         this.channel = ctx.getChannel();
         this.aes = null;
     }
@@ -51,15 +54,30 @@ public class TransferProtocol {
 
     public void acceptPacket(Packet packet) {
         try {
-            if (packet instanceof PacketClientHello) {
-                onClientHello();
-            } else if (packet instanceof PacketClientReady) {
-                if (encryptionSent) {
-                    encryptionEnabled = true;
-                    PacketServerReady p = new PacketServerReady();
-                    channel.write(p);
+            if (state == SessionState.WAIT_CLIENT_HELLO) {
+                if (packet instanceof PacketClientHello) {
+                    onClientHello();
+                    return;
                 }
-            } else if (packet instanceof PacketLogin packetLogin) {
+                disconnectByError("Expected ClientHello");
+                return;
+            }
+
+            if (state == SessionState.WAIT_CLIENT_READY) {
+                if (packet instanceof PacketClientReady) {
+                    onClientReady();
+                    return;
+                }
+                disconnectByError("Expected ClientReady");
+                return;
+            }
+
+            if (state != SessionState.READY) {
+                disconnectByError("Connection is not ready");
+                return;
+            }
+
+            if (packet instanceof PacketLogin packetLogin) {
                 onLogin(packetLogin.login, packetLogin.password, packetLogin.remember);
             } else if (packet instanceof PacketAuthByToken packetAuthByToken) {
                 onLogin(packetAuthByToken.token);
@@ -89,6 +107,18 @@ public class TransferProtocol {
         } catch (Exception e) {
             System.out.println("[EXCEPTION]: " + e.getMessage());
         }
+    }
+
+    private void disconnectByError(String string) {
+        System.out.println("Disconnect by error: " + string);
+        close();
+    }
+
+    private void onClientReady() {
+        encryptionEnabled = true;
+        state = SessionState.READY;
+        PacketServerReady p = new PacketServerReady();
+        channel.write(p);
     }
 
     private void onTyping(long chatId, boolean isTyping) {
@@ -226,8 +256,6 @@ public class TransferProtocol {
     }
 
     private void onClientHello() throws Exception {
-        if (encryptionEnabled || encryptionSent)
-            return;
         String certificate = CertificationManager.getCertificate();
         aes = new AES(AESMode.CBC);
         aes.setKey(AES.generateKey(256));
@@ -237,7 +265,7 @@ public class TransferProtocol {
         packet.Certificate = certificate;
         packet.clientKey = CryptoUtils.getBase64(aes.getKey());
         packet.IV = CryptoUtils.getBase64(aes.iv);
-        encryptionSent = true;
+        state = SessionState.WAIT_CLIENT_READY;
         channel.write(packet);
     }
 
@@ -559,7 +587,7 @@ public class TransferProtocol {
     }
 
     public static TransferProtocol getClientByIP(SocketAddress ip) {
-        for (TransferProtocol client : ConnectionHandler.getInstance().getController().getConnections()) {
+        for (TransferProtocol client : NetworkShared.getController().getConnections()) {
             if (client.channel.getRemoteAddress().equals(ip))
                 return client;
         }
@@ -568,7 +596,7 @@ public class TransferProtocol {
     }
 
     public static TransferProtocol getClientByLogin(String login) {
-        for (TransferProtocol client : ConnectionHandler.getInstance().getController().getConnections()) {
+        for (TransferProtocol client : NetworkShared.getController().getConnections()) {
             if (client.clientData.user.getLogin().equals(login))
                 return client;
         }

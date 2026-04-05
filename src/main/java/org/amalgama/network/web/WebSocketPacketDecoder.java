@@ -25,10 +25,13 @@ public class WebSocketPacketDecoder extends OneToOneDecoder {
 
         ChannelBuffer buffer = frame.getBinaryData();
 
-        ConnectionController controller = this.controller;
         TransferProtocol client = controller.getConnection(channel);
 
-        if (client != null && client.encryptionEnabled) {
+        if (client == null) {
+            throw new IllegalStateException("No TransferProtocol for channel " + channel);
+        }
+
+        if (client.encryptionEnabled) {
             byte[] cipher = new byte[buffer.readableBytes()];
             buffer.readBytes(cipher);
 

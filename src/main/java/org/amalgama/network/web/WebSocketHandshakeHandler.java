@@ -92,6 +92,10 @@ public class WebSocketHandshakeHandler extends SimpleChannelUpstreamHandler {
         handshaker.handshake(ctx.getChannel(), req);
         websocketAccepted = true;
         controller.newConnection(ctx);
+
+        java.util.logging.Logger.getGlobal().info(
+                "New WS connection: '" + ctx.getChannel().getRemoteAddress() + "' #" + ctx.getChannel().getId()
+        );
     }
 
     private static void sendHttpResponse(ChannelHandlerContext ctx, HttpRequest req, HttpResponse res) {
@@ -116,6 +120,9 @@ public class WebSocketHandshakeHandler extends SimpleChannelUpstreamHandler {
         if (websocketAccepted) {
             controller.disconnect(ctx);
         }
+        java.util.logging.Logger.getGlobal().info(
+                "WS disconnect: '" + ctx.getChannel().getRemoteAddress() + "' #" + ctx.getChannel().getId()
+        );
         super.channelDisconnected(ctx, e);
     }
 }

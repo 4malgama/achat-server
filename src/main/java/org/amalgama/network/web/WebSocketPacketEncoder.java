@@ -25,11 +25,15 @@ public class WebSocketPacketEncoder extends OneToOneEncoder {
 
         ChannelBuffer buffer = ChannelBuffers.dynamicBuffer();
         Packet.write(packet, buffer);
+        buffer.readInt();
 
-        ConnectionController controller = this.controller;
         TransferProtocol client = controller.getConnection(channel);
 
-        if (client != null && client.encryptionEnabled) {
+        if (client == null) {
+            throw new IllegalStateException("No TransferProtocol for channel " + channel);
+        }
+
+        if (client.encryptionEnabled) {
             byte[] bytes = new byte[buffer.readableBytes()];
             buffer.getBytes(buffer.readerIndex(), bytes);
 

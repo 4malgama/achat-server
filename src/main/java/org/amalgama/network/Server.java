@@ -16,35 +16,16 @@ public class Server implements Destroyable {
     private final String address;
     private final int port;
 
-    public Server(int port) {
-        this.address = null;
-        this.port = port;
-        networkServer = initServerBootstrap();
-    }
-
-    public Server(String address, int port) {
+    public Server(String address, int port, ConnectionController controller) {
         this.address = address;
         this.port = port;
-        networkServer = initServerBootstrap();
+        networkServer = initServerBootstrap(controller);
     }
 
     public Server(int port, ConnectionController controller) {
         this.address = null;
         this.port = port;
         networkServer = initServerBootstrap(controller);
-    }
-
-    private ServerBootstrap initServerBootstrap() {
-        final ServerBootstrap networkServer;
-        ExecutorService bossExec = new OrderedMemoryAwareThreadPoolExecutor(1, 400000000, 2000000000, 60, TimeUnit.SECONDS);
-        ExecutorService ioExec = new OrderedMemoryAwareThreadPoolExecutor(4, 400000000, 2000000000, 60, TimeUnit.SECONDS);
-        networkServer = new ServerBootstrap(new NioServerSocketChannelFactory(bossExec, ioExec, 4));
-        networkServer.setOption("backlog", 500);
-        networkServer.setOption("connectTimeoutMillis", 10000);
-        networkServer.setOption("child.tcpNoDelay", true);
-        networkServer.setOption("child.keepAlive", true);
-        networkServer.setPipelineFactory(new ServerPipelineFactory(null));
-        return networkServer;
     }
 
     private ServerBootstrap initServerBootstrap(ConnectionController controller) {
