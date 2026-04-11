@@ -35,13 +35,14 @@ dependencies {
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.1")
     implementation("jakarta.xml.bind:jakarta.xml.bind-api-parent:4.0.1")
     implementation("org.apache.logging.log4j:log4j-api:2.22.0")
-    implementation("org.apache.logging.log4j:log4j-core:2.22.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.25.3")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:2.22.0")
     implementation("io.netty:netty:3.10.6.Final")
     implementation("org.quartz-scheduler:quartz:2.3.2")
     implementation("org.hibernate:hibernate-core:6.2.7.Final")
     implementation("org.postgresql:postgresql:42.6.1")
     implementation("com.googlecode.json-simple:json-simple:1.1.1")
+    implementation("tools.jackson.core:jackson-databind:3.1.1")
     runtimeOnly("org.apache.logging.log4j:log4j-core")
 }
 

@@ -25,5 +25,7 @@
         <mapping class="org.amalgama.database.entities.Chat"/>
         <mapping class="org.amalgama.database.entities.Message"/>
         <mapping class="org.amalgama.database.entities.Attachment"/>
+        <mapping class="org.amalgama.database.entities.Blacklist"/>
+        <mapping class="org.amalgama.database.entities.Friends"/>
     </session-factory>
 </hibernate-configuration>

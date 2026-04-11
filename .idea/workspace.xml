@@ -9,23 +9,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="Add - WebServer">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/NetworkShared.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/SessionState.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/utils/TimeUtils.java" afterDir="false" />
+    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="WebServer update">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/BlacklistDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/FriendsDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/entities/Blacklist.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/entities/Friends.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/AccessData.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/UserAccessService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/json/PrivacyJsonModel.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/json/SettingsJsonModel.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ConnectionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ConnectionHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameEncoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameEncoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/Server.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ServerPipelineFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ServerPipelineFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/database/DBService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/DBService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/ChatService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketHandshakeHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketHandshakeHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketPacketDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketPacketDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketPacketEncoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketPacketEncoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/utils/TokenUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/utils/TokenUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/hibernate.cfg.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/hibernate.cfg.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -364,7 +361,15 @@
       <option name="project" value="LOCAL" />
       <updated>1775273645288</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="WebServer update">
+      <option name="closed" value="true" />
+      <created>1775358772809</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1775358772810</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -400,7 +405,8 @@
     <MESSAGE value="Add - Typing indicator" />
     <MESSAGE value="Bugfix" />
     <MESSAGE value="Add - WebServer" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add - WebServer" />
+    <MESSAGE value="WebServer update" />
+    <option name="LAST_COMMIT_MESSAGE" value="WebServer update" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

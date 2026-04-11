@@ -1,10 +1,7 @@
 package org.amalgama.database;
 
 import org.amalgama.database.dao.*;
-import org.amalgama.database.entities.Attachment;
-import org.amalgama.database.entities.Chat;
-import org.amalgama.database.entities.Message;
-import org.amalgama.database.entities.User;
+import org.amalgama.database.entities.*;
 import org.json.simple.JSONObject;
 
 import java.security.MessageDigest;
@@ -138,5 +135,15 @@ public class DBService {
 
     public void addChat(Chat chat) {
         ChatDAO.addChat(chat);
+    }
+
+    public boolean isBlackListed(User user, User target) {
+        Blacklist bl = BlacklistDAO.getBlacklistByUserAndTarget(user, target);
+        return bl != null;
+    }
+
+    public boolean isFriends(User user, User target) {
+        Friends f = FriendsDAO.getFriendsByUserAndTarget(user, target);
+        return f != null;
     }
 }

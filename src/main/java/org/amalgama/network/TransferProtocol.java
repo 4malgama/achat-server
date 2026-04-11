@@ -7,7 +7,9 @@ import org.amalgama.database.entities.Chat;
 import org.amalgama.database.entities.Message;
 import org.amalgama.database.entities.User;
 import org.amalgama.network.packets.*;
+import org.amalgama.network.services.AccessData;
 import org.amalgama.network.services.ChatService;
+import org.amalgama.network.services.UserAccessService;
 import org.amalgama.security.certification.CertificationManager;
 import org.amalgama.security.encryption.AES;
 import org.amalgama.security.encryption.AESMode;
@@ -560,19 +562,35 @@ public class TransferProtocol {
             jsonChat.put("is_group", chat.isGroup());
             if (!chat.isGroup()) {
                 JSONObject jsonUser = new JSONObject();
-                User user = chat.getUser();
-                if (Objects.equals(user.getId(), clientData.user.getId()))
-                    user = chat.getSecond();
-                if (user == null)
+                User userOpponent = chat.getUser();
+                if (Objects.equals(userOpponent.getId(), clientData.user.getId()))
+                    userOpponent = chat.getSecond();
+                if (userOpponent == null)
                     continue;
-                jsonUser.put("id", user.getId());
-                jsonUser.put("surname", user.getSName());
-                jsonUser.put("name", user.getFName());
-                jsonUser.put("patronymic", user.getMName());
-                jsonUser.put("post", user.getPost());
-                byte[] avatarBytes = cs.getUserAvatar(user.getId());
-                if (avatarBytes != null)
-                    jsonUser.put("avatar_data", CryptoUtils.getBase64(avatarBytes));
+
+                AccessData accessData = UserAccessService.accessBetween(clientData.user, userOpponent);
+
+                jsonUser.put("id", userOpponent.getId());
+
+                if (accessData.displayName.isEmpty()) {
+                    jsonUser.put("surname", userOpponent.getSName());
+                    jsonUser.put("name", userOpponent.getFName());
+                    jsonUser.put("patronymic", userOpponent.getMName());
+                } else {
+                    jsonUser.put("surname", "");
+                    jsonUser.put("name", accessData.displayName);
+                    jsonUser.put("patronymic", "");
+                }
+
+                String post = accessData.accessPost ? userOpponent.getPost() : "";
+                jsonUser.put("post", post);
+
+                if (accessData.accessPhoto) {
+                    byte[] avatarBytes = cs.getUserAvatar(userOpponent.getId());
+                    if (avatarBytes != null)
+                        jsonUser.put("avatar_data", CryptoUtils.getBase64(avatarBytes));
+                }
+
                 jsonChat.put("user", jsonUser);
             }
             jsonChats.add(jsonChat);
