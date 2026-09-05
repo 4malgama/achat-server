@@ -10,9 +10,6 @@ import org.amalgama.network.packets.*;
 import org.amalgama.network.services.AccessData;
 import org.amalgama.network.services.ChatService;
 import org.amalgama.network.services.UserAccessService;
-import org.amalgama.security.certification.CertificationManager;
-import org.amalgama.security.encryption.AES;
-import org.amalgama.security.encryption.AESMode;
 import org.amalgama.servecies.CacheService;
 import org.amalgama.utils.CryptoUtils;
 import org.amalgama.utils.TokenUtils;
@@ -36,14 +33,11 @@ public class TransferProtocol {
     }
 
     private SessionState state = SessionState.WAIT_CLIENT_HELLO;
-    public boolean encryptionEnabled = false;
     public ClientData clientData = new ClientData();
-    public AES aes;
     private final DBService dbService = DBService.getInstance();
 
     public TransferProtocol(ChannelHandlerContext ctx) {
         this.channel = ctx.getChannel();
-        this.aes = null;
     }
 
     public void onDisconnect() {
@@ -117,10 +111,8 @@ public class TransferProtocol {
     }
 
     private void onClientReady() {
-        encryptionEnabled = true;
         state = SessionState.READY;
-        PacketServerReady p = new PacketServerReady();
-        channel.write(p);
+        channel.write(new PacketServerReady());
     }
 
     private void onTyping(long chatId, boolean isTyping) {
@@ -258,16 +250,11 @@ public class TransferProtocol {
     }
 
     private void onClientHello() throws Exception {
-        String certificate = CertificationManager.getCertificate();
-        aes = new AES(AESMode.CBC);
-        aes.setKey(AES.generateKey(256));
-        aes.iv = AES.generateIV();
         PacketServerHello packet = new PacketServerHello();
-        packet.protocolVersion = "1.0";
-        packet.Certificate = certificate;
-        packet.clientKey = CryptoUtils.getBase64(aes.getKey());
-        packet.IV = CryptoUtils.getBase64(aes.iv);
+        packet.protocolVersion = "2.0";
+
         state = SessionState.WAIT_CLIENT_READY;
+
         channel.write(packet);
     }
 

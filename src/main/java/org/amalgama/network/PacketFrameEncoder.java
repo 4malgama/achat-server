@@ -7,31 +7,37 @@ import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
-public class PacketFrameEncoder extends OneToOneEncoder {
-    private final ConnectionController controller;
+import java.io.IOException;
 
-    public PacketFrameEncoder(ConnectionController controller) {
-        this.controller = controller;
-    }
+public class PacketFrameEncoder extends OneToOneEncoder {
+    private static final int MAX_PACKET_SIZE = 64 * 1024 * 1024;
 
     @Override
-    protected Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
-        if (!(msg instanceof Packet))
+    protected Object encode(
+            ChannelHandlerContext ctx,
+            Channel channel,
+            Object msg
+    ) throws Exception {
+        if (!(msg instanceof Packet packet)) {
             return msg;
-        Packet packet = (Packet) msg;
+        }
+
+        long expectedSize = 6L + packet.size();
+
+        if (expectedSize < 6 || expectedSize > MAX_PACKET_SIZE) {
+            channel.close();
+            throw new IOException("Invalid outgoing packet size");
+        }
 
         ChannelBuffer buffer = ChannelBuffers.dynamicBuffer();
+
         Packet.write(packet, buffer);
 
-        TransferProtocol client = controller.getConnection(channel);
-        if (client != null && client.encryptionEnabled) {
-            byte[] bytes = new byte[buffer.readableBytes()];
-            buffer.getBytes(buffer.readerIndex(), bytes);
-            byte[] cipher = client.aes.encrypt(bytes);
-            int cipherLength = cipher.length;
-            buffer.clear();
-            buffer.writeInt(cipherLength);
-            buffer.writeBytes(cipher);
+        if (buffer.readableBytes() != expectedSize) {
+            channel.close();
+            throw new IOException(
+                    "Serialized packet size does not match Packet.size()"
+            );
         }
 
         return buffer;
