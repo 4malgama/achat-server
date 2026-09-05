@@ -26,8 +26,6 @@ public class UserAccessService {
         try {
             SettingsJsonModel settingsModel = mapper.readValue(settings, SettingsJsonModel.class);
 
-            //TODO: check friends?
-
             DBService db = DBService.getInstance();
             boolean isBlacklisted = db.isBlackListed(target, viewer);
             boolean isFriends = db.isFriends(target, viewer);
