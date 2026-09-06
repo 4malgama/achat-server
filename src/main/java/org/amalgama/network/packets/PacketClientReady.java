@@ -9,7 +9,6 @@ public class PacketClientReady extends Packet {
 
     @Override
     public void receive(ChannelBuffer buffer) {
-
     }
 
     @Override

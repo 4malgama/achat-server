@@ -4,7 +4,7 @@ plugins {
 }
 
 application {
-    mainClass.set("amalgama.Main")
+    mainClass.set("org.amalgama.Main")
 }
 
 tasks.register<Jar>("fatJar") {

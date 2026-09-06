@@ -10,9 +10,6 @@ import org.amalgama.network.packets.*;
 import org.amalgama.network.services.AccessData;
 import org.amalgama.network.services.ChatService;
 import org.amalgama.network.services.UserAccessService;
-import org.amalgama.security.certification.CertificationManager;
-import org.amalgama.security.encryption.AES;
-import org.amalgama.security.encryption.AESMode;
 import org.amalgama.servecies.CacheService;
 import org.amalgama.utils.CryptoUtils;
 import org.amalgama.utils.TokenUtils;
@@ -36,14 +33,11 @@ public class TransferProtocol {
     }
 
     private SessionState state = SessionState.WAIT_CLIENT_HELLO;
-    public boolean encryptionEnabled = false;
     public ClientData clientData = new ClientData();
-    public AES aes;
     private final DBService dbService = DBService.getInstance();
 
     public TransferProtocol(ChannelHandlerContext ctx) {
         this.channel = ctx.getChannel();
-        this.aes = null;
     }
 
     public void onDisconnect() {
@@ -117,10 +111,8 @@ public class TransferProtocol {
     }
 
     private void onClientReady() {
-        encryptionEnabled = true;
         state = SessionState.READY;
-        PacketServerReady p = new PacketServerReady();
-        channel.write(p);
+        channel.write(new PacketServerReady());
     }
 
     private void onTyping(long chatId, boolean isTyping) {
@@ -132,45 +124,54 @@ public class TransferProtocol {
     }
 
     private void onCreateChatWithMessage(long userId, String messageData) throws ParseException {
-        DBService db = DBService.getInstance();
-        User user = db.getUser(userId);
-        if (db.getChat(clientData.user, user) != null)
+        if (clientData.user == null) {
             return;
-        if (user != null) {
-            Chat chat = new Chat();
-            chat.setGroup(false);
-            chat.setUser(clientData.user);
-            chat.setSecond(user);
-
-            db.addChat(chat);
-            updateChatId(chat.getId(), user.getLogin());
-
-            JSONParser parser = new JSONParser();
-
-            byte[] avatarData = CacheService.getInstance().getUserAvatar(clientData.user.getId());
-            String avatarBase64 = CryptoUtils.getBase64(avatarData);
-
-            JSONObject jsonUserData = new JSONObject();
-            jsonUserData.put("user_id", clientData.user.getId());
-            jsonUserData.put("fname", clientData.user.getFName());
-            jsonUserData.put("sname", clientData.user.getSName());
-            jsonUserData.put("mname", clientData.user.getMName());
-            jsonUserData.put("post", clientData.user.getPost());
-            jsonUserData.put("avatar_data", avatarBase64);
-
-            JSONObject json = new JSONObject();
-            json.put("chat_id", chat.getId());
-            json.put("user_data", jsonUserData);
-            PacketCreateChat packet = new PacketCreateChat();
-            packet.jsonData = json.toJSONString();
-
-            TransferProtocol secondClient = getClientByLogin(user.getLogin());
-            if (secondClient != null) {
-                secondClient.send(packet);
-            }
-
-            onSendMessage(chat.getId(), messageData);
         }
+
+        DBService db = DBService.getInstance();
+        User recipient = db.getUser(userId);
+
+        if (recipient == null
+                || Objects.equals(recipient.getId(), clientData.user.getId())) {
+            return;
+        }
+
+        AccessData access = UserAccessService.accessBetween(clientData.user, recipient);
+
+        if (!access.accessSendMessage) {
+            return;
+        }
+
+        if (db.getChat(clientData.user, recipient) != null) {
+            return;
+        }
+
+        Chat chat = new Chat();
+        chat.setGroup(false);
+        chat.setUser(clientData.user);
+        chat.setSecond(recipient);
+
+        db.addChat(chat);
+
+        if (chat.getId() == null) {
+            return;
+        }
+
+        updateChatId(chat.getId(), recipient.getLogin());
+
+        JSONObject json = new JSONObject();
+        json.put("chat_id", chat.getId());
+        json.put("user_data", makePublicUserJson(recipient, clientData.user));
+
+        PacketCreateChat packet = new PacketCreateChat();
+        packet.jsonData = json.toJSONString();
+
+        TransferProtocol secondClient = getClientByLogin(recipient.getLogin());
+        if (secondClient != null) {
+            secondClient.send(packet);
+        }
+
+        onSendMessage(chat.getId(), messageData);
     }
 
     private void updateChatId(Long id, String login) {
@@ -200,42 +201,95 @@ public class TransferProtocol {
         channel.write(packet);
     }
 
+    private JSONObject makePublicUserJson(User viewer, User target) {
+        AccessData access = UserAccessService.accessBetween(viewer, target);
+
+        String firstName = Objects.toString(target.getFName(), "");
+        String surname = Objects.toString(target.getSName(), "");
+        String middleName = Objects.toString(target.getMName(), "");
+
+        if (!access.displayName.isEmpty()) {
+            firstName = access.displayName;
+            surname = "";
+            middleName = "";
+        }
+
+        String displayName = (surname + " " + firstName + " " + middleName).trim();
+
+        if (displayName.isEmpty()) {
+            displayName = target.getLogin();
+        }
+
+        JSONObject json = new JSONObject();
+        json.put("user_id", target.getId());
+        json.put("login", target.getLogin());
+        json.put("fname", firstName);
+        json.put("sname", surname);
+        json.put("mname", middleName);
+        json.put("display_name", displayName);
+        json.put("post", access.accessPost ? Objects.toString(target.getPost(), "") : "");
+
+        json.put("avatar_data", null);
+
+        if (access.accessPhoto) {
+            byte[] avatar = CacheService.getInstance()
+                    .getUserAvatar(target.getId());
+
+            if (avatar != null) {
+                json.put("avatar_data", CryptoUtils.getBase64(avatar));
+            }
+        }
+
+        return json;
+    }
+
     private void onSearch(String json) {
+        if (clientData.user == null || json == null) {
+            return;
+        }
+
         JSONParser parser = new JSONParser();
+
         try {
-            JSONObject jsonSearch = (JSONObject) parser.parse(json);
-            String query = (String) jsonSearch.get("text");
-            List<User> users = dbService.getAllUsersByLogin(query);
+            Object parsed = parser.parse(json);
+            if (!(parsed instanceof JSONObject)) {
+                return;
+            }
+
+            JSONObject request = (JSONObject) parsed;
+            Object text = request.get("text");
+            if (!(text instanceof String)) {
+                return;
+            }
+
+            List<User> users = dbService.getAllUsersByLogin((String) text);
+            JSONArray jsonUsers = new JSONArray();
+
+            if (users != null) {
+                for (User user : users) {
+                    if (user == null
+                            || Objects.equals(user.getId(), clientData.user.getId())) {
+                        continue;
+                    }
+
+                    Chat chat = dbService.getChat(user, clientData.user);
+                    JSONObject jsonUser =
+                            makePublicUserJson(clientData.user, user);
+
+                    jsonUser.put("chat_id", chat != null ? chat.getId() : 0);
+                    jsonUsers.add(jsonUser);
+                }
+            }
 
             JSONObject result = new JSONObject();
-            JSONArray jsonUsers = new JSONArray();
-            for (User user : users) {
-                if (Objects.equals(user.getId(), clientData.user.getId()))
-                    continue;
-
-                Chat chat = dbService.getChat(user, clientData.user);
-                JSONObject jsonUser = new JSONObject();
-                jsonUser.put("login", user.getLogin());
-                if (user.getFName().isEmpty() && user.getSName().isEmpty() && user.getMName().isEmpty())
-                    jsonUser.put("display_name", user.getLogin());
-                else
-                    jsonUser.put("display_name", user.getSName() + " " + user.getFName() + " " + user.getMName());
-                jsonUser.put("fname", user.getFName());
-                jsonUser.put("sname", user.getSName());
-                jsonUser.put("mname", user.getMName());
-                jsonUser.put("avatar_data", CryptoUtils.getBase64(CacheService.getInstance().getUserAvatar(user.getId())));
-                jsonUser.put("user_id", user.getId());
-                jsonUser.put("chat_id", (chat != null ? chat.getId() : 0));
-                jsonUser.put("post", user.getPost());
-                jsonUsers.add(jsonUser);
-            }
             result.put("results", jsonUsers);
 
-            PacketSearch resultSearch = new PacketSearch();
-            resultSearch.json = result.toJSONString();
-            channel.write(resultSearch);
+            PacketSearch packet = new PacketSearch();
+            packet.json = result.toJSONString();
+            channel.write(packet);
         } catch (ParseException e) {
-            e.printStackTrace();
+            java.util.logging.Logger.getGlobal()
+                    .warning("Invalid search JSON");
         }
     }
 
@@ -258,23 +312,51 @@ public class TransferProtocol {
     }
 
     private void onClientHello() throws Exception {
-        String certificate = CertificationManager.getCertificate();
-        aes = new AES(AESMode.CBC);
-        aes.setKey(AES.generateKey(256));
-        aes.iv = AES.generateIV();
         PacketServerHello packet = new PacketServerHello();
-        packet.protocolVersion = "1.0";
-        packet.Certificate = certificate;
-        packet.clientKey = CryptoUtils.getBase64(aes.getKey());
-        packet.IV = CryptoUtils.getBase64(aes.iv);
+        packet.protocolVersion = "2.0";
+
         state = SessionState.WAIT_CLIENT_READY;
+
         channel.write(packet);
     }
 
     private void onSendMessage(long chatId, String jsonData) throws ParseException {
+        if (clientData.user == null) {
+            return;
+        }
+
         DBService db = DBService.getInstance();
         Chat chat = db.getChat(clientData.user, chatId);
+
         if (chat != null) {
+            if (!chat.isGroup()) {
+                User recipient;
+
+                if (chat.getUser() != null
+                        && Objects.equals(
+                        chat.getUser().getId(),
+                        clientData.user.getId()
+                )) {
+                    recipient = chat.getSecond();
+                } else if (chat.getSecond() != null
+                        && Objects.equals(
+                        chat.getSecond().getId(),
+                        clientData.user.getId()
+                )) {
+                    recipient = chat.getUser();
+                } else {
+                    return;
+                }
+
+                if (recipient == null
+                        || !UserAccessService.accessBetween(
+                        clientData.user,
+                        recipient
+                ).accessSendMessage) {
+                    return;
+                }
+            }
+
             Message message = new Message();
             message.setChat(chat);
             message.setTimestamp(System.currentTimeMillis() / 1000L);
@@ -614,9 +696,15 @@ public class TransferProtocol {
     }
 
     public static TransferProtocol getClientByLogin(String login) {
+        if (login == null) {
+            return null;
+        }
+
         for (TransferProtocol client : NetworkShared.getController().getConnections()) {
-            if (client.clientData.user.getLogin().equals(login))
+            if (client.clientData.user != null
+                    && login.equals(client.clientData.user.getLogin())) {
                 return client;
+            }
         }
 
         return null;

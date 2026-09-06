@@ -2,6 +2,7 @@ package org.amalgama.database;
 
 import org.amalgama.database.dao.*;
 import org.amalgama.database.entities.*;
+import org.amalgama.utils.CryptoUtils;
 import org.json.simple.JSONObject;
 
 import java.security.MessageDigest;
@@ -77,7 +78,8 @@ public class DBService {
     }
 
     public boolean validateCredentials(String login, String password) {
-        return UserDAO.getUser(login, password) != null;
+        //TODO SHA1 or SHA256
+        return UserDAO.getUser(login, CryptoUtils.getHash(password, "MD5")) != null;
     }
 
     public void updateEmail(User user, String email) {

@@ -9,20 +9,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="WebServer update">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/BlacklistDAO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/FriendsDAO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/entities/Blacklist.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/entities/Friends.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/AccessData.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/UserAccessService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/json/PrivacyJsonModel.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/json/SettingsJsonModel.java" afterDir="false" />
+    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="crypto: TLS handshake">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/database/DBService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/DBService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/hibernate.cfg.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/hibernate.cfg.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/UserAccessService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/UserAccessService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/json/PrivacyJsonModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/json/PrivacyJsonModel.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,6 +49,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="GithubDefaultAccount">
@@ -90,6 +86,10 @@
 }</component>
   <component name="RunManager" selected="Application.Main">
     <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <envs>
+        <env name="ACHAT_TLS_KEYSTORE" value="C:\AChat\tls\localhost.p12" />
+        <env name="ACHAT_TLS_PASSWORD" value="xxXX6677" />
+      </envs>
       <option name="MAIN_CLASS_NAME" value="org.amalgama.Main" />
       <module name="AdvancedChatServer.main" />
       <extension name="coverage">
@@ -190,13 +190,20 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Application.Main" />
+      <item itemvalue="Gradle.AdvancedChatServer [build]" />
+      <item itemvalue="Gradle.AdvancedChatServer [buildDependents]" />
+      <item itemvalue="Gradle.AdvancedChatServer [fatJar]" />
+      <item itemvalue="Gradle.AdvancedChatServer [jar]" />
+    </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.Main" />
         <item itemvalue="Gradle.AdvancedChatServer [fatJar]" />
         <item itemvalue="Gradle.AdvancedChatServer [jar]" />
         <item itemvalue="Gradle.AdvancedChatServer [buildDependents]" />
         <item itemvalue="Gradle.AdvancedChatServer [build]" />
-        <item itemvalue="Application.Main" />
       </list>
     </recent_temporary>
   </component>
@@ -369,7 +376,31 @@
       <option name="project" value="LOCAL" />
       <updated>1775358772810</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="Add - Privacy Settings supports">
+      <option name="closed" value="true" />
+      <created>1775928690756</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1775928690756</updated>
+    </task>
+    <task id="LOCAL-00022" summary="cleanup">
+      <option name="closed" value="true" />
+      <created>1788615617072</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1788615617072</updated>
+    </task>
+    <task id="LOCAL-00023" summary="crypto: TLS handshake">
+      <option name="closed" value="true" />
+      <created>1788625137904</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1788625137904</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -380,7 +411,19 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="development" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -406,7 +449,10 @@
     <MESSAGE value="Bugfix" />
     <MESSAGE value="Add - WebServer" />
     <MESSAGE value="WebServer update" />
-    <option name="LAST_COMMIT_MESSAGE" value="WebServer update" />
+    <MESSAGE value="Add - Privacy Settings supports" />
+    <MESSAGE value="cleanup" />
+    <MESSAGE value="crypto: TLS handshake" />
+    <option name="LAST_COMMIT_MESSAGE" value="crypto: TLS handshake" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -1,44 +1,44 @@
 package org.amalgama.network.web;
 
-import org.amalgama.network.ConnectionController;
-import org.amalgama.network.TransferProtocol;
 import org.amalgama.network.packets.Packet;
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import org.jboss.netty.handler.codec.oneone.OneToOneDecoder;
 
-public class WebSocketPacketDecoder extends OneToOneDecoder {
-    private final ConnectionController controller;
+import java.io.IOException;
 
-    public WebSocketPacketDecoder(ConnectionController controller) {
-        this.controller = controller;
-    }
+public class WebSocketPacketDecoder extends OneToOneDecoder {
+    private static final int MAX_PACKET_SIZE = 64 * 1024 * 1024;
 
     @Override
-    protected Object decode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
+    protected Object decode(
+            ChannelHandlerContext ctx,
+            Channel channel,
+            Object msg
+    ) throws Exception {
         if (!(msg instanceof BinaryWebSocketFrame frame)) {
-            return msg;
+            throw new IOException("Expected a binary WebSocket frame");
         }
 
-        ChannelBuffer buffer = frame.getBinaryData();
-
-        TransferProtocol client = controller.getConnection(channel);
-
-        if (client == null) {
-            throw new IllegalStateException("No TransferProtocol for channel " + channel);
+        if (!frame.isFinalFragment() || frame.getRsv() != 0) {
+            throw new IOException("Unsupported WebSocket frame format");
         }
 
-        if (client.encryptionEnabled) {
-            byte[] cipher = new byte[buffer.readableBytes()];
-            buffer.readBytes(cipher);
+        ChannelBuffer buffer = frame.getBinaryData().duplicate();
 
-            byte[] decrypted = client.aes.decrypt(cipher);
-            buffer = ChannelBuffers.wrappedBuffer(decrypted);
+        if (buffer.readableBytes() < 2
+                || buffer.readableBytes() > MAX_PACKET_SIZE) {
+            throw new IOException("Invalid incoming packet size");
         }
 
-        return Packet.read(buffer);
+        Packet packet = Packet.read(buffer);
+
+        if (buffer.readable()) {
+            throw new IOException("Unexpected trailing packet data");
+        }
+
+        return packet;
     }
 }

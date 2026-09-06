@@ -1,7 +1,5 @@
 package org.amalgama.network.web;
 
-import org.amalgama.network.ConnectionController;
-import org.amalgama.network.TransferProtocol;
 import org.amalgama.network.packets.Packet;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
@@ -10,36 +8,40 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import org.jboss.netty.handler.codec.oneone.OneToOneEncoder;
 
-public class WebSocketPacketEncoder extends OneToOneEncoder {
-    private final ConnectionController controller;
+import java.io.IOException;
 
-    public WebSocketPacketEncoder(ConnectionController controller) {
-        this.controller = controller;
-    }
+public class WebSocketPacketEncoder extends OneToOneEncoder {
+    private static final int MAX_PACKET_SIZE = 64 * 1024 * 1024;
 
     @Override
-    protected Object encode(ChannelHandlerContext ctx, Channel channel, Object msg) throws Exception {
+    protected Object encode(
+            ChannelHandlerContext ctx,
+            Channel channel,
+            Object msg
+    ) throws Exception {
         if (!(msg instanceof Packet packet)) {
             return msg;
         }
 
+        long expectedSize = 6L + packet.size();
+
+        if (expectedSize < 6 || expectedSize > MAX_PACKET_SIZE) {
+            channel.close();
+            throw new IOException("Invalid outgoing packet size");
+        }
+
         ChannelBuffer buffer = ChannelBuffers.dynamicBuffer();
+
         Packet.write(packet, buffer);
-        buffer.readInt();
 
-        TransferProtocol client = controller.getConnection(channel);
-
-        if (client == null) {
-            throw new IllegalStateException("No TransferProtocol for channel " + channel);
+        if (buffer.readableBytes() != expectedSize) {
+            channel.close();
+            throw new IOException(
+                    "Serialized packet size does not match Packet.size()"
+            );
         }
 
-        if (client.encryptionEnabled) {
-            byte[] bytes = new byte[buffer.readableBytes()];
-            buffer.getBytes(buffer.readerIndex(), bytes);
-
-            byte[] cipher = client.aes.encrypt(bytes);
-            buffer = ChannelBuffers.wrappedBuffer(cipher);
-        }
+        buffer.skipBytes(4);
 
         return new BinaryWebSocketFrame(buffer);
     }

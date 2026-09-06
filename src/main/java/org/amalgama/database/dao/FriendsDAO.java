@@ -59,7 +59,6 @@ public class FriendsDAO {
 
     public static Friends getFriendsByUserAndTarget(User user, User target) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            System.out.println("Friends check: " + user.getLogin() + " and " + target.getLogin());
             return session.createQuery("FROM Friends WHERE (User = ?1 AND Friend = ?2) OR (User = ?2 AND Friend = ?1)", Friends.class)
                     .setParameter(1, user)
                     .setParameter(2, target)

@@ -31,18 +31,6 @@ public class CryptoUtils {
         }
     }
 
-    public static byte[] MD5(byte[] data) {
-        if (data == null)
-            return null;
-
-        try {
-            MessageDigest md = MessageDigest.getInstance("MD5");
-            return md.digest(data);
-        } catch (NoSuchAlgorithmException e) {
-            return null;
-        }
-    }
-
     /**
      * Generates a Base64 encoded string from the given byte array data.
      *

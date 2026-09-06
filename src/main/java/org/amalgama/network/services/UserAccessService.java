@@ -10,66 +10,71 @@ import java.util.Objects;
 import java.util.logging.Logger;
 
 public class UserAccessService {
+    private static boolean allows(String rule, boolean isFriend) {
+        return "everyone".equalsIgnoreCase(rule) || (isFriend && "friends".equalsIgnoreCase(rule));
+    }
+
     public static AccessData accessBetween(User viewer, User target) {
-        if (viewer == null || target == null) {
+        AccessData data = new AccessData();
+
+        if (viewer == null || target == null || viewer.getId() == null || target.getId() == null) {
             throw new IllegalArgumentException("Viewer or target is null");
         }
 
         if (Objects.equals(viewer.getId(), target.getId())) {
-            return new AccessData();
+            data.accessPhoto = true;
+            data.accessDescription = true;
+            data.accessViewComments = true;
+            data.accessLeaveComments = true;
+            data.accessPost = true;
+            data.accessAddFriends = true;
+            data.accessOnlineStatus = true;
+            data.accessSendMessage = true;
+            data.accessInvites = true;
+            return data;
         }
 
-        AccessData data = new AccessData();
-        String settings = target.getSettingsData();
-        ObjectMapper mapper = new ObjectMapper();
-
         try {
-            SettingsJsonModel settingsModel = mapper.readValue(settings, SettingsJsonModel.class);
-
-            //TODO: check friends?
-
             DBService db = DBService.getInstance();
+
             boolean isBlacklisted = db.isBlackListed(target, viewer);
-            boolean isFriends = db.isFriends(target, viewer);
 
             if (isBlacklisted) {
                 data.displayName = "<YOU'RE BLACKLISTED>";
                 return data;
             }
 
-            final PrivacyJsonModel privacy = settingsModel.getPrivacySettings();
-            if (privacy == null) {
+            String settings = target.getSettingsData();
+            if (settings == null || settings.isBlank()) {
                 return data;
             }
 
-            data.displayName = privacy.getDisplayName();
+            ObjectMapper mapper = new ObjectMapper();
+            SettingsJsonModel settingsModel = mapper.readValue(settings, SettingsJsonModel.class);
 
-            if (isFriends) {
-                data.accessPhoto = !privacy.getSeeProfilePhoto().equalsIgnoreCase("nobody");
-                data.accessDescription = !privacy.getSeeProfileDescription().equalsIgnoreCase("nobody");
-                data.accessViewComments = !privacy.getSeeProfileComments().equalsIgnoreCase("nobody");
-                data.accessLeaveComments = !privacy.getLeaveComments().equalsIgnoreCase("nobody");
-                data.accessPost = !privacy.getSeeProfilePost().equalsIgnoreCase("nobody");
-                data.accessAddFriends = !privacy.getSendFriendRequest().equalsIgnoreCase("nobody");
-                data.accessOnlineStatus = !privacy.getSeeOnlineStatus().equalsIgnoreCase("nobody");
-                data.accessSendMessage = !privacy.getSendMessage().equalsIgnoreCase("nobody");
-                data.accessInvites = !privacy.getInviteToGroups().equalsIgnoreCase("nobody");
-            } else {
-                data.accessPhoto = privacy.getSeeProfilePhoto().equalsIgnoreCase("everyone");
-                data.accessDescription = privacy.getSeeProfileDescription().equalsIgnoreCase("everyone");
-                data.accessViewComments = privacy.getSeeProfileComments().equalsIgnoreCase("everyone");
-                data.accessLeaveComments = privacy.getLeaveComments().equalsIgnoreCase("everyone");
-                data.accessPost = privacy.getSeeProfilePost().equalsIgnoreCase("everyone");
-                data.accessAddFriends = privacy.getSendFriendRequest().equalsIgnoreCase("everyone");
-                data.accessOnlineStatus = privacy.getSeeOnlineStatus().equalsIgnoreCase("everyone");
-                data.accessSendMessage = privacy.getSendMessage().equalsIgnoreCase("everyone");
-                data.accessInvites = privacy.getInviteToGroups().equalsIgnoreCase("everyone");
+            if (settingsModel == null || settingsModel.getPrivacySettings() == null) {
+                return data;
             }
-        } catch (Exception e) {
-            Logger.getGlobal().warning("Failed to parse user settings: " + e.getMessage());
-            return data;
-        }
 
-        return data;
+            PrivacyJsonModel privacy = settingsModel.getPrivacySettings();
+            boolean isFriend = db.isFriends(target, viewer);
+
+            data.displayName = Objects.toString(privacy.getDisplayName(), "");
+
+            data.accessPhoto = allows(privacy.getSeeProfilePhoto(), isFriend);
+            data.accessDescription = allows(privacy.getSeeProfileDescription(), isFriend);
+            data.accessViewComments = allows(privacy.getSeeProfileComments(), isFriend);
+            data.accessLeaveComments = allows(privacy.getLeaveComments(), isFriend);
+            data.accessPost = allows(privacy.getSeeProfilePost(), isFriend);
+            data.accessAddFriends = allows(privacy.getSendFriendRequest(), isFriend);
+            data.accessOnlineStatus = allows(privacy.getSeeOnlineStatus(), isFriend);
+            data.accessSendMessage = allows(privacy.getSendMessage(), isFriend);
+            data.accessInvites = allows(privacy.getInviteToGroups(), isFriend);
+
+            return data;
+        } catch (Exception e) {
+            Logger.getGlobal().warning("Failed to evaluate privacy for user: " + target.getId());
+            return new AccessData();
+        }
     }
 }

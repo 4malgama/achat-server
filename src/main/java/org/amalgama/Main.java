@@ -4,13 +4,18 @@ import org.amalgama.network.ConnectionController;
 import org.amalgama.network.NetworkShared;
 import org.amalgama.network.Server;
 import org.amalgama.network.web.WebSocketServer;
+import org.amalgama.security.tls.ServerTls;
 import org.amalgama.utils.Checker;
 import org.amalgama.utils.FileUtils;
 import org.amalgama.utils.ServerLogger;
 
+
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         ServerLogger.log("Starting server...");
+
+        ServerTls.initialize();
+
         Checker.runChecks();
         FileUtils.makePaths();
 

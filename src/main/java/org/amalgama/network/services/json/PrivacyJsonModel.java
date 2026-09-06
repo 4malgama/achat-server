@@ -5,31 +5,31 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class PrivacyJsonModel {
     @JsonProperty("see_profile_photo")
 
-    private String seeProfilePhoto = "everyone";
+    private String seeProfilePhoto = "nobody";
 
     @JsonProperty("send_message")
-    private String sendMessage = "everyone";
+    private String sendMessage = "nobody";
 
     @JsonProperty("see_profile_description")
-    private String seeProfileDescription = "everyone";
+    private String seeProfileDescription = "nobody";
 
     @JsonProperty("invite_to_groups")
-    private String inviteToGroups = "everyone";
+    private String inviteToGroups = "nobody";
 
     @JsonProperty("send_friend_request")
-    private String sendFriendRequest = "everyone";
+    private String sendFriendRequest = "nobody";
 
     @JsonProperty("see_online_status")
-    private String seeOnlineStatus = "everyone";
+    private String seeOnlineStatus = "nobody";
 
     @JsonProperty("see_profile_post")
-    private String seeProfilePost = "everyone";
+    private String seeProfilePost = "nobody";
 
     @JsonProperty("see_profile_comments")
-    private String seeProfileComments = "everyone";
+    private String seeProfileComments = "nobody";
 
     @JsonProperty("leave_comments")
-    private String leaveComments = "everyone";
+    private String leaveComments = "nobody";
 
     @JsonProperty("display_name")
     private String displayName = "";

@@ -112,7 +112,7 @@ public class WebSocketHandshakeHandler extends SimpleChannelUpstreamHandler {
     }
 
     private static String getWebSocketLocation(HttpRequest req, String path) {
-        return "ws://" + req.headers().get(HOST) + path;
+        return "wss://" + req.headers().get(HOST) + path;
     }
 
     @Override
