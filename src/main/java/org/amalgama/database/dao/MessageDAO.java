@@ -18,7 +18,7 @@ public class MessageDAO {
 
     public static List<Message> getMessages(Chat chat) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery("FROM Message WHERE Chat = ?1", Message.class)
+            return session.createQuery("FROM Message WHERE Chat = ?1 ORDER BY Timestamp ASC, Id ASC", Message.class)
                     .setParameter(1, chat)
                     .list();
         } catch (Exception e) {

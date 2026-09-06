@@ -48,6 +48,18 @@ public class CacheService {
         return FileUtils.readFile(dir + a.getId() + "_" + a.getName());
     }
 
+    /** Bounded read: a file growing after the size check cannot exhaust memory. */
+    public byte[] readAttachment(long chatId, Attachment a, int maximumBytes) {
+        String path = serverPath + "attachments\\" + chatId + "\\"
+                + a.getId() + "_" + a.getName();
+        try (java.io.InputStream input = java.nio.file.Files.newInputStream(
+                java.nio.file.Paths.get(path))) {
+            return input.readNBytes(maximumBytes + 1);
+        } catch (java.io.IOException e) {
+            return null;
+        }
+    }
+
     public void setUserAvatar(Long userId, byte[] avatarData) {
         String dir = serverPath + "avatars\\";
         FileUtils.createDirectoryIfNotExists(dir);

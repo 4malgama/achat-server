@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class TransferProtocol {
+    private static final int MAX_DOWNLOAD_BYTES = 32 * 1024 * 1024;
     private final Channel channel;
 
     public SessionState getState() {
@@ -73,6 +74,15 @@ public class TransferProtocol {
                 return;
             }
 
+            // Only authentication and locale negotiation are valid without an account.
+            if (clientData.user == null && !(packet instanceof PacketLogin)
+                    && !(packet instanceof PacketAuthByToken)
+                    && !(packet instanceof PacketRegister)
+                    && !(packet instanceof PacketInitLocation)) {
+                disconnectByError("Authentication required");
+                return;
+            }
+
             if (packet instanceof PacketLogin packetLogin) {
                 onLogin(packetLogin.login, packetLogin.password, packetLogin.remember);
             } else if (packet instanceof PacketAuthByToken packetAuthByToken) {
@@ -85,14 +95,18 @@ public class TransferProtocol {
                 onCheckAvatarHash(packetCheckAvatarHash.avatarHash);
             } else if (packet instanceof PacketUpdateProfile packetUpdateProfile) {
                 onUpdateProfile(packetUpdateProfile.changes);
+            } else if (packet instanceof PacketInitChats) {
+                initChats();
             } else if (packet instanceof PacketGetInitMessages packetGetInitMessages) {
                 onGetInitMessages(packetGetInitMessages.chatId);
             } else if (packet instanceof PacketSendMessage packetSendMessage) {
                 onSendMessage(packetSendMessage.chatId, packetSendMessage.jsonData);
             } else if (packet instanceof PacketSearch packetSearch) {
                 onSearch(packetSearch.json);
+            } else if (packet instanceof PacketDownloadFileRequest request) {
+                onDownloadFile(request.fileId, request.requestId);
             } else if (packet instanceof PacketDownloadFile packetDownloadFile) {
-                onDownloadFile(packetDownloadFile.fileId);
+                onDownloadFile(packetDownloadFile.fileId, 0);
             } else if (packet instanceof PacketCreateChatWithMessage packetCreateChatWithMessage) {
                 onCreateChatWithMessage(packetCreateChatWithMessage.userId, packetCreateChatWithMessage.messageData);
             } else if (packet instanceof PacketUpdateAvatar packetUpdateAvatar) {
@@ -179,26 +193,64 @@ public class TransferProtocol {
         channel.write(packet);
     }
 
-    private void onDownloadFile(long fileId) {
-        Attachment attachment = dbService.getAttachment(fileId);
-        if (attachment == null)
-            return;
-        Message message = attachment.getMessage();
-        if (message == null)
-            return;
-        Chat chat = message.getChat();
-        if (chat == null)
-            return;
-        if (!chat.isGroup() && !(Objects.equals(chat.getUser().getId(), clientData.user.getId()) || Objects.equals(chat.getSecond().getId(), clientData.user.getId())))
-            return;
-        CacheService cache = CacheService.getInstance();
-        byte[] bytes = cache.readAttachment(chat.getId(), attachment);
-        if (bytes == null)
-            return;
-        PacketSendFile packet = new PacketSendFile();
-        packet.fileData = bytes;
-        packet.fileName = attachment.getName();
-        channel.write(packet);
+    private void onDownloadFile(long fileId, long requestId) {
+        if (clientData.user == null) return;
+        try {
+            Attachment attachment = dbService.getAttachment(fileId);
+            Message message = attachment == null ? null : attachment.getMessage();
+            Chat chat = message == null ? null : message.getChat();
+            // Use the same membership check as history. Group IDs are not a bypass.
+            if (chat == null || dbService.getChat(clientData.user, chat.getId()) == null) {
+                sendDownloadError(requestId, fileId, 1, "Вложение недоступно или у вас нет доступа к чату.");
+                return;
+            }
+            String name = attachment.getName();
+            if (name == null || name.isBlank() || name.length() > 1024
+                    || name.contains("/") || name.contains("\\") || name.contains(":")
+                    || name.chars().anyMatch(Character::isISOControl)) {
+                sendDownloadError(requestId, fileId, 2, "Файл недоступен на сервере.");
+                return;
+            }
+            CacheService cache = CacheService.getInstance();
+            if (cache.getAttachmentSize(chat.getId(), attachment) > MAX_DOWNLOAD_BYTES) {
+                sendDownloadError(requestId, fileId, 3, "Размер файла превышает лимит скачивания: 32 МБ.");
+                return;
+            }
+            byte[] bytes = cache.readAttachment(chat.getId(), attachment, MAX_DOWNLOAD_BYTES);
+            if (bytes == null) {
+                sendDownloadError(requestId, fileId, 2, "Файл удалён или недоступен на сервере.");
+                return;
+            }
+            if (bytes.length > MAX_DOWNLOAD_BYTES) {
+                sendDownloadError(requestId, fileId, 3, "Размер файла превышает лимит скачивания: 32 МБ.");
+                return;
+            }
+            if (requestId > 0) {
+                PacketDownloadFileResult result = new PacketDownloadFileResult();
+                result.requestId = requestId;
+                result.fileId = fileId;
+                result.fileName = name;
+                result.fileData = bytes;
+                channel.write(result);
+            } else {
+                PacketSendFile result = new PacketSendFile();
+                result.fileName = name;
+                result.fileData = bytes;
+                channel.write(result);
+            }
+        } catch (Exception e) {
+            sendDownloadError(requestId, fileId, 4, "Не удалось прочитать файл. Повторите попытку позже.");
+        }
+    }
+
+    private void sendDownloadError(long requestId, long fileId, int status, String error) {
+        if (requestId <= 0) return; // Legacy Qt has no download-error packet.
+        PacketDownloadFileResult result = new PacketDownloadFileResult();
+        result.requestId = requestId;
+        result.fileId = fileId;
+        result.status = status;
+        result.error = error;
+        channel.write(result);
     }
 
     private JSONObject makePublicUserJson(User viewer, User target) {
@@ -393,87 +445,120 @@ public class TransferProtocol {
     }
 
     private void newMessage(Message message, List<Attachment> attachments) {
+        Chat chat = message.getChat();
+        if (chat.isGroup()) return; // Group delivery is not implemented by this server yet.
+        for (TransferProtocol connection : NetworkShared.getController().getConnections()) {
+            User viewer = connection.clientData.user;
+            if (viewer == null) continue;
+            boolean participant = (chat.getUser() != null
+                    && Objects.equals(viewer.getId(), chat.getUser().getId()))
+                    || (chat.getSecond() != null
+                    && Objects.equals(viewer.getId(), chat.getSecond().getId()));
+            if (!participant) continue;
+            // A shared packet would expose the sender's real name to every recipient.
+            JSONObject json = makeMessageJson(viewer, message, attachments);
+            json.put("chat_id", chat.getId());
+            PacketNewMessage packet = new PacketNewMessage();
+            packet.jsonData = json.toJSONString();
+            connection.send(packet);
+        }
+    }
+
+    private JSONObject makeSenderJson(User viewer, User sender) {
         JSONObject json = new JSONObject();
-        json.put("chat_id", message.getChat().getId());
+        if (sender == null) {
+            json.put("id", 0);
+            json.put("name", "Удалённый пользователь");
+            json.put("surname", "");
+            json.put("patronymic", "");
+            return json;
+        }
+        AccessData access = UserAccessService.accessBetween(viewer, sender);
+        boolean alias = !access.displayName.isEmpty();
+        json.put("id", sender.getId());
+        json.put("name", alias ? access.displayName : Objects.toString(sender.getFName(), ""));
+        json.put("surname", alias ? "" : Objects.toString(sender.getSName(), ""));
+        json.put("patronymic", alias ? "" : Objects.toString(sender.getMName(), ""));
+        json.put("login", sender.getLogin());
+        return json;
+    }
+
+    private JSONObject makeMessageJson(User viewer, Message message, List<Attachment> files) {
+        JSONObject json = new JSONObject();
         json.put("id", message.getId());
-        json.put("time", message.getTimestamp());
         json.put("content", message.getContent());
+        json.put("time", message.getTimestamp());
+        json.put("sender", makeSenderJson(viewer, message.getUser()));
         json.put("reply_id", message.getReplyId());
         json.put("forward_id", message.getForwardId());
-
-        JSONObject sender = new JSONObject();
-        sender.put("id", message.getUser().getId());
-        sender.put("name", message.getUser().getFName());
-        sender.put("surname", message.getUser().getSName());
-        sender.put("patronymic", message.getUser().getMName());
-        json.put("sender", sender);
-
-        if (!attachments.isEmpty()) {
-            JSONArray attachmentsArray = new JSONArray();
-            for (Attachment attachment : attachments) {
-                JSONObject attachmentJson = new JSONObject();
-                attachmentJson.put("id", attachment.getId());
-                attachmentJson.put("name", attachment.getName());
-                attachmentJson.put("type", attachment.getType());
-                attachmentJson.put("size", CacheService.getInstance().getAttachmentSize(message.getChat().getId(), attachment));
-                attachmentsArray.add(attachmentJson);
-            }
-            json.put("attachments", attachmentsArray);
+        JSONArray attachments = new JSONArray();
+        if (files == null) throw new IllegalStateException("Attachments could not be loaded");
+        for (Attachment file : files) {
+            JSONObject item = new JSONObject();
+            item.put("id", file.getId());
+            item.put("name", file.getName());
+            item.put("type", file.getType());
+            item.put("size", CacheService.getInstance().getAttachmentSize(message.getChat().getId(), file));
+            attachments.add(item); // Metadata only. File bytes are read exclusively on download.
         }
+        json.put("attachments", attachments);
+        return json;
+    }
 
-        PacketNewMessage packet = new PacketNewMessage();
-        packet.jsonData = json.toJSONString();
-        ChatService.broadcastChat(message.getChat(), packet);
+    private JSONObject makeChatUserJson(User viewer, User target) {
+        JSONObject json = makeSenderJson(viewer, target);
+        AccessData access = UserAccessService.accessBetween(viewer, target);
+        json.put("post", access.accessPost ? Objects.toString(target.getPost(), "") : "");
+        json.put("avatar_data", null); // Explicitly clears a previously visible avatar.
+        if (access.accessPhoto) {
+            byte[] avatar = CacheService.getInstance().getUserAvatar(target.getId());
+            if (avatar != null) json.put("avatar_data", CryptoUtils.getBase64(avatar));
+        }
+        return json;
+    }
+
+    private User chatOpponent(Chat chat) {
+        User first = chat.getUser();
+        return first != null && Objects.equals(first.getId(), clientData.user.getId())
+                ? chat.getSecond() : first;
     }
 
     private void onGetInitMessages(long chatId) {
-        DBService db = DBService.getInstance();
-        Chat chat = db.getChat(clientData.user, chatId);
-        if (chat != null) {
-            List<Message> messages = db.getMessages(chat);
-
-            JSONObject json = new JSONObject();
-            JSONArray jsonMessages = new JSONArray();
-            for (Message message : messages) {
-                User sender = message.getUser();
-
-                JSONArray attachments = new JSONArray();
-
-                CacheService cacheService = CacheService.getInstance();
-                for (Attachment a : db.getAttachments(message)) {
-                    JSONObject attachment = new JSONObject();
-                    attachment.put("id", a.getId());
-                    attachment.put("name", a.getName());
-                    attachment.put("type", a.getType());
-                    attachment.put("size", cacheService.getAttachmentSize(chatId, a));
-                    attachments.add(attachment);
+        if (clientData.user == null) return;
+        JSONObject json = new JSONObject();
+        json.put("chat_id", chatId);
+        JSONArray items = new JSONArray();
+        try {
+            Chat chat = dbService.getChat(clientData.user, chatId);
+            if (chat == null) {
+                json.put("error", "Чат недоступен или у вас нет доступа к нему.");
+            } else {
+                List<Message> messages = dbService.getMessages(chat);
+                if (messages == null) throw new IllegalStateException("History unavailable");
+                for (Message message : messages) {
+                    items.add(makeMessageJson(clientData.user, message, dbService.getAttachments(message)));
                 }
-
-                JSONObject jsonMessage = new JSONObject();
-                jsonMessage.put("id", message.getId());
-                jsonMessage.put("content", message.getContent());
-                jsonMessage.put("time", message.getTimestamp());
-
-                JSONObject jsonSender = new JSONObject();
-                jsonSender.put("id", sender.getId());
-                jsonSender.put("name", sender.getFName());
-                jsonSender.put("surname", sender.getSName());
-                jsonSender.put("patronymic", sender.getMName());
-
-                jsonMessage.put("sender", jsonSender);
-                jsonMessage.put("reply_id", message.getReplyId());
-                jsonMessage.put("forward_id", message.getForwardId());
-                jsonMessage.put("attachments", attachments);
-
-                jsonMessages.add(jsonMessage);
+                if (!chat.isGroup()) {
+                    User opponent = chatOpponent(chat);
+                    if (opponent != null) json.put("user", makeChatUserJson(clientData.user, opponent));
+                }
             }
-
-            json.put("messages", jsonMessages);
-            json.put("chat_id", chat.getId());
-            PacketInitMessages packet = new PacketInitMessages();
-            packet.jsonData = json.toJSONString();
-            channel.write(packet);
+        } catch (Exception e) {
+            items.clear();
+            json.remove("user");
+            json.put("error", "Не удалось загрузить историю. Повторите попытку позже.");
         }
+        json.put("messages", items);
+        PacketInitMessages packet = new PacketInitMessages();
+        packet.jsonData = json.toJSONString();
+        if (packet.jsonData.length() > (64 * 1024 * 1024 - 10) / 2) {
+            json.clear();
+            json.put("chat_id", chatId);
+            json.put("messages", new JSONArray());
+            json.put("error", "История превышает размер одного ответа сервера.");
+            packet.jsonData = json.toJSONString();
+        }
+        channel.write(packet);
     }
 
     private void onUpdateProfile(String changes) throws ParseException {
@@ -632,58 +717,38 @@ public class TransferProtocol {
     }
 
     private void initChats() {
-        DBService db = DBService.getInstance();
-        CacheService cs = CacheService.getInstance();
-        List<Chat> chats = db.getChats(clientData.user);
-
-        JSONArray jsonChats = new JSONArray();
-
-        for (Chat chat : chats) {
-            JSONObject jsonChat = new JSONObject();
-            jsonChat.put("id", chat.getId());
-            jsonChat.put("is_group", chat.isGroup());
-            if (!chat.isGroup()) {
-                JSONObject jsonUser = new JSONObject();
-                User userOpponent = chat.getUser();
-                if (Objects.equals(userOpponent.getId(), clientData.user.getId()))
-                    userOpponent = chat.getSecond();
-                if (userOpponent == null)
-                    continue;
-
-                AccessData accessData = UserAccessService.accessBetween(clientData.user, userOpponent);
-
-                jsonUser.put("id", userOpponent.getId());
-
-                if (accessData.displayName.isEmpty()) {
-                    jsonUser.put("surname", userOpponent.getSName());
-                    jsonUser.put("name", userOpponent.getFName());
-                    jsonUser.put("patronymic", userOpponent.getMName());
-                } else {
-                    jsonUser.put("surname", "");
-                    jsonUser.put("name", accessData.displayName);
-                    jsonUser.put("patronymic", "");
-                }
-
-                String post = accessData.accessPost ? userOpponent.getPost() : "";
-                jsonUser.put("post", post);
-
-                if (accessData.accessPhoto) {
-                    byte[] avatarBytes = cs.getUserAvatar(userOpponent.getId());
-                    if (avatarBytes != null)
-                        jsonUser.put("avatar_data", CryptoUtils.getBase64(avatarBytes));
-                }
-
-                jsonChat.put("user", jsonUser);
-            }
-            jsonChats.add(jsonChat);
-        }
-
+        if (clientData.user == null) return;
         JSONObject json = new JSONObject();
-        json.put("chats", jsonChats);
-
-        PacketInitChats packetInitChats = new PacketInitChats();
-        packetInitChats.jsonData = json.toJSONString();
-        channel.write(packetInitChats);
+        JSONArray items = new JSONArray();
+        // Lets Web refuse an unsupported download without sending an unknown packet to old servers.
+        json.put("download_protocol", 2);
+        try {
+            List<Chat> chats = dbService.getChats(clientData.user);
+            if (chats == null) throw new IllegalStateException("Chat list unavailable");
+            for (Chat chat : chats) {
+                JSONObject item = new JSONObject();
+                item.put("id", chat.getId());
+                item.put("is_group", chat.isGroup());
+                if (!chat.isGroup()) {
+                    User opponent = chatOpponent(chat);
+                    if (opponent == null) continue;
+                    item.put("user", makeChatUserJson(clientData.user, opponent));
+                }
+                items.add(item);
+            }
+        } catch (Exception e) {
+            items.clear();
+            json.put("error", "Не удалось загрузить список чатов. Повторите попытку позже.");
+        }
+        json.put("chats", items);
+        PacketInitChats packet = new PacketInitChats();
+        packet.jsonData = json.toJSONString();
+        if (packet.jsonData.length() > (64 * 1024 * 1024 - 10) / 2) {
+            json.put("chats", new JSONArray());
+            json.put("error", "Список чатов превышает размер одного ответа сервера.");
+            packet.jsonData = json.toJSONString();
+        }
+        channel.write(packet);
     }
 
     public static TransferProtocol getClientByIP(SocketAddress ip) {

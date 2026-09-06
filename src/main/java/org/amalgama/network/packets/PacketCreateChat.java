@@ -24,6 +24,6 @@ public class PacketCreateChat extends Packet {
 
     @Override
     public int size() {
-        return 0;
+        return 4 + jsonData.length() * 2;
     }
 }

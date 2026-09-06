@@ -9,11 +9,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="crypto: TLS handshake">
+    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="Privacy Update">
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketDownloadFileRequest.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketDownloadFileResult.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/MessageDAO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/database/dao/MessageDAO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFactory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/UserAccessService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/UserAccessService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/json/PrivacyJsonModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/json/PrivacyJsonModel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketCreateChat.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketCreateChat.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/servecies/CacheService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/servecies/CacheService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -400,7 +404,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788625137904</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Privacy Update">
+      <option name="closed" value="true" />
+      <created>1788695141733</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1788695141733</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -452,7 +464,8 @@
     <MESSAGE value="Add - Privacy Settings supports" />
     <MESSAGE value="cleanup" />
     <MESSAGE value="crypto: TLS handshake" />
-    <option name="LAST_COMMIT_MESSAGE" value="crypto: TLS handshake" />
+    <MESSAGE value="Privacy Update" />
+    <option name="LAST_COMMIT_MESSAGE" value="Privacy Update" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
