@@ -9,23 +9,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="cleanup">
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/security/tls/ServerTls.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="1176344a-b498-4a7a-a26f-27c63116d4fc" name="Changes" comment="crypto: TLS handshake">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameEncoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/PacketFrameEncoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ServerPipelineFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/ServerPipelineFactory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/TransferProtocol.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketServerHello.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/packets/PacketServerHello.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketHandshakeHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketHandshakeHandler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketPacketDecoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketPacketDecoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketPacketEncoder.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketPacketEncoder.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketPipelineFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/web/WebSocketPipelineFactory.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/security/certification/CertificationManager.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/certificate.crt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/UserAccessService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/UserAccessService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/json/PrivacyJsonModel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/amalgama/network/services/json/PrivacyJsonModel.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -404,7 +392,15 @@
       <option name="project" value="LOCAL" />
       <updated>1788615617072</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="crypto: TLS handshake">
+      <option name="closed" value="true" />
+      <created>1788625137904</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1788625137904</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="UnknownFeatures">
@@ -455,7 +451,8 @@
     <MESSAGE value="WebServer update" />
     <MESSAGE value="Add - Privacy Settings supports" />
     <MESSAGE value="cleanup" />
-    <option name="LAST_COMMIT_MESSAGE" value="cleanup" />
+    <MESSAGE value="crypto: TLS handshake" />
+    <option name="LAST_COMMIT_MESSAGE" value="crypto: TLS handshake" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
